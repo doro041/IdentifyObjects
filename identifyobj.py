@@ -1,42 +1,32 @@
+
+# dependecies: Pillow (Python module)
 from PIL import Image, ImageDraw
 
-orig_img = []
-changed_img = []
-width = 0
-height = 0
+# Open the images
+orig = Image.open("tux.png").convert("RGBA")
+changed = Image.open("tux2.png").convert("RGBA")
 
-with Image.open("tux.png").convert("RGBA") as orig:
-    orig_data = orig.load()
-    width = orig.width
-    height = orig.height
-    for w in range(orig.width):
-        for h in range(orig.height):
-            r, g, b, _ = orig_data[w, h]
-            orig_img.append((r, g, b))
-
-with Image.open("tux2.png").convert("RGBA") as changed:
-    changed_data = changed.load()
-    for w in range(changed.width):
-        for h in range(changed.height):
-            r, g, b, _ = changed_data[w, h]
-            changed_img.append((r, g, b))
-
-def get_img_diff(img0, img1):
-    img_res = []
-    for i in range(len(img0)):
-        r_0, g_0, b_0 = img0[i]
-        r_1, g_1, b_1 = img1[i]
-        img_res.append((abs(r_1 - r_0), abs(g_1 - g_0), abs(b_1 - b_0)))
+# computes the difference in the pixels of the two images
+def get_img_diff(img0: Image, img1: Image):
+    if img0.width != img1.width or img0.height != img1.height:
+        return None
+    data0 = img0.load()
+    data1 = img1.load()
+    img_res = Image.new("RGBA", (img0.width, img0.height))
+    res_draw = ImageDraw.Draw(img_res)
+    for w in range(img0.width):
+        for h in range(img0.height):
+            r0, g0, b0, _ = data0[w, h]
+            r1, g1, b1, _ = data1[w, h]
+            res_draw.point([(w, h)], (abs(r1 - r0), abs(g1 - g0), abs(b1 - b0), 255))
     return img_res
 
-res = get_img_diff(orig_img, changed_img)
-res_img = Image.new("RGBA", (width, height))
+res = get_img_diff(orig, changed)
 
-draw = ImageDraw.Draw(res_img)
-for w in range(width):
-    for h in range(height):
-        r, g, b = res[w * height + h]
-        draw.point([(w, h)], (r, g, b, 255))
+# close input images
+orig.close()
+changed.close()
 
-res_img.show()
-res_img.close()
+# show the image and close
+res.show()
+res.close()
