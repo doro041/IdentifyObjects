@@ -359,8 +359,8 @@ class AIWin:
 
 
 # Open the images
-orig = Image.open("tux_small.png").convert("RGBA")
-changed = Image.open("tux_small2.png").convert("RGBA")
+orig = Image.open("1-before.jpeg").convert("RGBA")
+changed = Image.open("1-after.jpg").convert("RGBA")
 
 # at very end of algorithm section
 def end_callback():
