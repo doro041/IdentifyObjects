@@ -13,6 +13,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   I think https://stackoverflow.com/questions/47852221/tkinter-after-method-executing-immediately for sorting out my timer. I originally thought I wasn't calling it as a function but I now think I was.
   https://stackoverflow.com/questions/9776718/how-do-i-stop-tkinter-after-function for the after_cancel function
   https://docs.python.org/3/howto/sorting.html for sorting the list and mentioning the itemgetter function
+  https://www.geeksforgeeks.org/how-to-hide-recover-and-delete-tkinter-widgets/ for hiding the differences label while modifying it
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
@@ -30,9 +31,23 @@ def sec_to_time(time: int):
 def swap(a, b):
     return (b, a)
 
+# returns if box b0 is inside box b1
+def box_inside(b0, b1):
+    x00, y00 = b0[0]
+    x01, y01 = b0[1]
+    
+    x10, y10 = b1[0]
+    x11, y11 = b1[1]
+
+    if x00 >= x10 and x01 <= x11 and y00 >= y10 and y01 <= y11:
+        return True
+    return False
+
+# solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
+
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, fin_callback):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, fin_callback):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = Tk()
         self.win.title("Spot The Difference")
@@ -53,8 +68,10 @@ class UserWin:
         self.drawn_changed = self.square_changed.copy()
         self.orig_tk = ImageTk.PhotoImage(self.drawn_orig) # in format for Tk to render -> these will hold the currently drawn images but are redundant
         self.changed_tk = ImageTk.PhotoImage(self.drawn_changed)
+        self.solutions = solutions
 
         self.time = 60 # time to run for
+        self.score = 0 # the player's score
         self.running = True # timer hasn't run out
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
         self.lower_bar = Frame(self.win, bg="black")
@@ -64,9 +81,11 @@ class UserWin:
         self.time_label = Label(self.win, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
 
+        self.diff_sol_label = Label(self.win, text=f"", font=("arial", 30), bg="black", fg="magenta")
+
         if num_differences > 0:
-            self.diff_label = Label(self.win, text=f"Differences: {num_differences}", font=("arial", 30), bg="black", fg="magenta")
-            self.diff_label.grid(row=2, column=1)
+            self.diff_sol_label["text"] = f"Differences: {num_differences}"
+            self.diff_sol_label.grid(row=2, column=1)
 
         self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white")
         self.next_button.grid(row=0, column=2, sticky="ne")
@@ -99,6 +118,50 @@ class UserWin:
         self.orig_tk = ImageTk.PhotoImage(self.drawn_orig)
         self.orig_label["image"] = self.orig_tk
 
+    # calculates the score for the player leniance -> how far either side of axis error can be to still be rewarded points for solution. Score algorithm may change in future
+    def do_score(self, leniance = 5):
+        num_correct = 0 # how many of the solutions the player got right
+        score = 0
+        solutions_used = []
+        for rec in self.squares:
+            rec_solutions = []
+            for i in range(len(self.solutions)):
+                if i not in solutions_used:
+                    sol = self.solutions[i]
+                    x0, y0 = sol[0]
+                    x1, y1 = sol[1]
+                    # create inner and outer boxes so there can be some error
+                    inner_x0 = x0 + 5
+                    inner_y0 = y0 + 5
+                    inner_x1 = x1 - 5
+                    inner_y1 = y1 - 5
+                    if inner_x0 > inner_x1:
+                        inner_x0 = (x0 + x1) // 2 # use average middle pixel for both as is line
+                        inner_x1 = inner_x0
+                    if inner_y0 > inner_y1:
+                        inner_y0 = (y0 + y1) // 2
+                        inner_y1 = inner_y0
+                    outer_x0 = x0 - 5
+                    outer_y0 = y0 - 5
+                    outer_x1 = x1 + 5
+                    outer_y1 = y1 + 5
+                    if box_inside([(inner_x0, inner_y0), (inner_x1, inner_y1)], rec) and box_inside(rec, [(outer_x0, outer_y0), (outer_x1, outer_y1)]):
+                        rec_solutions.append(i) # possible solution
+            # select lowest scoring solution
+            chosen = -1
+            chosen_score = 1000000000 # don't add scores bigger than this
+            for sol_index in rec_solutions:
+                if self.solutions[sol_index][2] < chosen_score:
+                    chosen = sol_index
+                    chosen_score = self.solutions[sol_index][2]
+            if chosen != -1:
+                num_correct += 1
+                solutions_used.append(chosen)
+                score += self.solutions[sol_index][2]
+        if num_correct == len(self.solutions):
+            score += self.time # time bonus for if have all solutions and there is time left
+        return score
+
     # draw new changed image in tkinter
     def draw_changed(self, img: Image):
         self.drawn_changed.close()
@@ -129,7 +192,7 @@ class UserWin:
             changed_draw.rectangle([(x0, y0), (x1, y1)], None, (255, 0, 0))
             self.draw_orig(self.square_orig)
             self.draw_changed(self.square_changed)
-        else:
+        elif self.num_differences <= 0 or (len(self.squares) < self.num_differences):
             self.start_click = (event.x, event.y) # this was the start point
 
     # mouse is moving across image
@@ -154,6 +217,20 @@ class UserWin:
             self.draw_orig(cur_orig)
             self.draw_changed(cur_changed)
 
+    # display score and stop timer
+    def end_game(self):
+        if self.time_call is not None:
+            self.win.after_cancel(self.time_call)
+        self.time_label.config(text=f"{sec_to_time(self.time)}")
+        if self.num_differences > 0:
+            self.diff_sol_label.grid_forget()
+        self.diff_sol_label["text"] = f"Score: {self.do_score()}"
+        self.diff_sol_label["fg"] = "yellow"
+        if self.num_differences > 0:
+            self.diff_sol_label.grid(row=2, column=1)
+        else:
+            self.diff_sol_label.grid(self.win, row=2, column=1)
+        self.running = False
 
     # countdown timer
     def count_down(self):
@@ -168,8 +245,8 @@ class UserWin:
             self.changed_tk = ImageTk.PhotoImage(self.square_changed)
             self.orig_label["image"] = self.orig_tk
             self.changed_label["image"] = self.changed_tk
-            self.running = False # time ran out
             self.time_call = None
+            self.end_game()
 
     # listen for u key or escape key for undo feature
     def key_pressed(self, event):
@@ -196,16 +273,16 @@ class UserWin:
 
     # next button pressed -> go onto next stage
     def next_clicked(self, event):
-        self.running = False
-        self.square_orig.close()
-        self.square_changed.close()
-        self.logo.close()
-        self.drawn_orig.close()
-        self.drawn_changed.close()
-        if self.time_call is not None:
-            self.win.after_cancel(self.time_call)
-        self.win.destroy()
-        self.fin_callback(self.squares, self.time)
+        if self.running:
+            self.end_game()
+        else:
+            self.square_orig.close()
+            self.square_changed.close()
+            self.logo.close()
+            self.drawn_orig.close()
+            self.drawn_changed.close()
+            self.win.destroy()
+            self.fin_callback(self.squares, self.time)
 
     # run main window
     def run(self):
@@ -252,7 +329,6 @@ class AIWin:
                 pixel_score += score
             self.objects.append([(w0, h0), (w1, h1), pixel_score])
         self.objects.sort(key=itemgetter(2), reverse=True)
-        print(self.objects)
         if num_differences > 0:
             self.objects = self.objects[0:num_differences]
 
@@ -386,5 +462,6 @@ def start_ai(squares, time):
     ai_win = AIWin(orig, changed, 3, end_callback)
     ai_win.run()
 
-user_win = UserWin(orig, changed, 3, start_ai)
+solutions = [[(196, 30), (233, 93), 1], [(170, 378), (193, 452), 1], [(188, 137), (205, 156), 1]]
+user_win = UserWin(orig, changed, 3, solutions, start_ai)
 user_win.run()
