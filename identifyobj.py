@@ -43,6 +43,49 @@ def box_inside(b0, b1):
         return True
     return False
 
+# calculates the score for the player leniance -> how far either side of axis error can be to still be rewarded points for solution. Score algorithm may change in future
+def do_score(selections, solutions, time, leniance = 5):
+    num_correct = 0 # how many of the solutions the player got right
+    score = 0
+    solutions_used = []
+    for rec in selections:
+        rec_solutions = []
+        for i in range(len(solutions)):
+            if i not in solutions_used:
+                sol = solutions[i]
+                x0, y0 = sol[0]
+                x1, y1 = sol[1]
+                # create inner and outer boxes so there can be some error
+                inner_x0 = x0 + leniance
+                inner_y0 = y0 + leniance
+                inner_x1 = x1 - leniance
+                inner_y1 = y1 - leniance
+                if inner_x0 > inner_x1:
+                    inner_x0 = (x0 + x1) // 2 # use average middle pixel for both as is line
+                    inner_x1 = inner_x0
+                if inner_y0 > inner_y1:
+                    inner_y0 = (y0 + y1) // 2
+                    inner_y1 = inner_y0
+                outer_x0 = x0 - leniance
+                outer_y0 = y0 - leniance
+                outer_x1 = x1 + leniance
+                outer_y1 = y1 + leniance
+                if box_inside([(inner_x0, inner_y0), (inner_x1, inner_y1)], rec) and box_inside(rec, [(outer_x0, outer_y0), (outer_x1, outer_y1)]):
+                    rec_solutions.append(i) # possible solution
+        # select lowest scoring solution
+        chosen = -1
+        chosen_score = 1000000000 # don't add scores bigger than this
+        for sol_index in rec_solutions:
+            if solutions[sol_index][2] < chosen_score:
+                chosen = sol_index
+                chosen_score = solutions[sol_index][2]
+        if chosen != -1:
+            num_correct += 1
+            solutions_used.append(chosen)
+            score += solutions[sol_index][2]
+    if num_correct == len(solutions):
+        score += time # time bonus for if have all solutions and there is time left
+    return score
 # solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
 
 # User Window for player's attempt
@@ -118,49 +161,6 @@ class UserWin:
         self.orig_tk = ImageTk.PhotoImage(self.drawn_orig)
         self.orig_label["image"] = self.orig_tk
 
-    # calculates the score for the player leniance -> how far either side of axis error can be to still be rewarded points for solution. Score algorithm may change in future
-    def do_score(self, leniance = 5):
-        num_correct = 0 # how many of the solutions the player got right
-        score = 0
-        solutions_used = []
-        for rec in self.squares:
-            rec_solutions = []
-            for i in range(len(self.solutions)):
-                if i not in solutions_used:
-                    sol = self.solutions[i]
-                    x0, y0 = sol[0]
-                    x1, y1 = sol[1]
-                    # create inner and outer boxes so there can be some error
-                    inner_x0 = x0 + 5
-                    inner_y0 = y0 + 5
-                    inner_x1 = x1 - 5
-                    inner_y1 = y1 - 5
-                    if inner_x0 > inner_x1:
-                        inner_x0 = (x0 + x1) // 2 # use average middle pixel for both as is line
-                        inner_x1 = inner_x0
-                    if inner_y0 > inner_y1:
-                        inner_y0 = (y0 + y1) // 2
-                        inner_y1 = inner_y0
-                    outer_x0 = x0 - 5
-                    outer_y0 = y0 - 5
-                    outer_x1 = x1 + 5
-                    outer_y1 = y1 + 5
-                    if box_inside([(inner_x0, inner_y0), (inner_x1, inner_y1)], rec) and box_inside(rec, [(outer_x0, outer_y0), (outer_x1, outer_y1)]):
-                        rec_solutions.append(i) # possible solution
-            # select lowest scoring solution
-            chosen = -1
-            chosen_score = 1000000000 # don't add scores bigger than this
-            for sol_index in rec_solutions:
-                if self.solutions[sol_index][2] < chosen_score:
-                    chosen = sol_index
-                    chosen_score = self.solutions[sol_index][2]
-            if chosen != -1:
-                num_correct += 1
-                solutions_used.append(chosen)
-                score += self.solutions[sol_index][2]
-        if num_correct == len(self.solutions):
-            score += self.time # time bonus for if have all solutions and there is time left
-        return score
 
     # draw new changed image in tkinter
     def draw_changed(self, img: Image):
@@ -224,12 +224,10 @@ class UserWin:
         self.time_label.config(text=f"{sec_to_time(self.time)}")
         if self.num_differences > 0:
             self.diff_sol_label.grid_forget()
-        self.diff_sol_label["text"] = f"Score: {self.do_score()}"
+        self.score = do_score(self.squares, self.solutions, self.time)
+        self.diff_sol_label["text"] = f"Score: {self.score}"
         self.diff_sol_label["fg"] = "yellow"
-        if self.num_differences > 0:
-            self.diff_sol_label.grid(row=2, column=1)
-        else:
-            self.diff_sol_label.grid(self.win, row=2, column=1)
+        self.diff_sol_label.grid(row=2, column=1)
         self.running = False
 
     # countdown timer
@@ -282,7 +280,7 @@ class UserWin:
             self.drawn_orig.close()
             self.drawn_changed.close()
             self.win.destroy()
-            self.fin_callback(self.squares, self.time)
+            self.fin_callback(self.score)
 
     # run main window
     def run(self):
@@ -292,7 +290,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, fin_callback, sensitivity: int = 20):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, fin_callback, sensitivity: int = 20):
         self.win = Tk()
         self.win.title("Spot The Difference")
         self.win["bg"] = "black"
@@ -332,6 +330,8 @@ class AIWin:
         if num_differences > 0:
             self.objects = self.objects[0:num_differences]
 
+        self.selections = []
+
         # draw the bounding rectangles on the images
         orig_draw = ImageDraw.Draw(self.orig_img)
         changed_draw = ImageDraw.Draw(self.changed_img)
@@ -340,6 +340,8 @@ class AIWin:
             orig_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
             changed_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
             diff_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
+            self.selections.append([obj[0], obj[1]])
+        self.score = do_score(self.selections, solutions, 0) # we won't give algorithm time credit
 
         # transform to Tk images
         self.orig_tk = ImageTk.PhotoImage(self.orig_img)
@@ -368,6 +370,9 @@ class AIWin:
 
         self.next_button = Button(self.win, text="Next", font=("arial", 30), fg="white", bg="black")
         self.next_button.grid(row=0, column=2, sticky="ne")
+
+        self.score_label = Label(self.win, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
+        self.score_label.grid(row=2, column=1)
 
         self.next_button.bind("<Button>", self.next_clicked)
 
@@ -450,6 +455,7 @@ class AIWin:
 # Open the images
 orig = Image.open("1-before.jpeg").convert("RGBA")
 changed = Image.open("1-after.jpg").convert("RGBA")
+solutions = [[(196, 30), (233, 93), 1], [(170, 378), (193, 452), 1], [(188, 137), (205, 156), 1]]
 
 # at very end of algorithm section
 def end_callback():
@@ -458,10 +464,10 @@ def end_callback():
     exit(0)
 
 # after the user has had a go -> going to see what the algorithm did
-def start_ai(squares, time):
-    ai_win = AIWin(orig, changed, 3, end_callback)
+def start_ai(score):
+    # this may look bad as though we give the algorithm all the solutions and it uses them but it does work them out and doesn't do that
+    ai_win = AIWin(orig, changed, 3, solutions, end_callback)
     ai_win.run()
 
-solutions = [[(196, 30), (233, 93), 1], [(170, 378), (193, 452), 1], [(188, 137), (205, 156), 1]]
 user_win = UserWin(orig, changed, 3, solutions, start_ai)
 user_win.run()
