@@ -2,6 +2,7 @@ from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 from PIL import ImageDraw
+from operator import itemgetter
 
 """
 Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - Fraser
@@ -11,6 +12,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
 
   I think https://stackoverflow.com/questions/47852221/tkinter-after-method-executing-immediately for sorting out my timer. I originally thought I wasn't calling it as a function but I now think I was.
   https://stackoverflow.com/questions/9776718/how-do-i-stop-tkinter-after-function for the after_cancel function
+  https://docs.python.org/3/howto/sorting.html for sorting the list and mentioning the itemgetter function
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
@@ -30,7 +32,7 @@ def swap(a, b):
 
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, orig_img: Image, changed_img: Image, fin_callback):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, fin_callback):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = Tk()
         self.win.title("Spot The Difference")
@@ -54,12 +56,17 @@ class UserWin:
 
         self.time = 60 # time to run for
         self.running = True # timer hasn't run out
+        self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
         self.lower_bar = Frame(self.win, bg="black")
         self.lower_bar.grid(row=1, column=0, columnspan=3)
 
         # displaying things on the screen
         self.time_label = Label(self.win, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
+
+        if num_differences > 0:
+            self.diff_label = Label(self.win, text=f"Differences: {num_differences}", font=("arial", 30), bg="black", fg="magenta")
+            self.diff_label.grid(row=2, column=1)
 
         self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white")
         self.next_button.grid(row=0, column=2, sticky="ne")
@@ -208,7 +215,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, orig_img: Image, changed_img: Image, fin_callback, sensitivity: int = 20):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, fin_callback, sensitivity: int = 20):
         self.win = Tk()
         self.win.title("Spot The Difference")
         self.win["bg"] = "black"
@@ -231,8 +238,9 @@ class AIWin:
             h0 = self.diff_img.height
             w1 = 0
             h1 = 0
+            pixel_score = 0
             for pixel in pixel_obj: # finding the bounding rectangles for the objects
-                w, h = pixel
+                w, h, score = pixel
                 if w < w0:
                     w0 = w
                 if w > w1:
@@ -241,16 +249,21 @@ class AIWin:
                     h0 = h
                 if h > h1:
                     h1 = h
-            self.objects.append([(w0, h0), (w1, h1)])
+                pixel_score += score
+            self.objects.append([(w0, h0), (w1, h1), pixel_score])
+        self.objects.sort(key=itemgetter(2), reverse=True)
+        print(self.objects)
+        if num_differences > 0:
+            self.objects = self.objects[0:num_differences]
 
         # draw the bounding rectangles on the images
         orig_draw = ImageDraw.Draw(self.orig_img)
         changed_draw = ImageDraw.Draw(self.changed_img)
         diff_draw = ImageDraw.Draw(self.diff_img)
         for obj in self.objects:
-            orig_draw.rectangle(obj, None, (255, 0, 0))
-            changed_draw.rectangle(obj, None, (255, 0, 0))
-            diff_draw.rectangle(obj, None, (255, 0, 0))
+            orig_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
+            changed_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
+            diff_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
 
         # transform to Tk images
         self.orig_tk = ImageTk.PhotoImage(self.orig_img)
@@ -305,7 +318,7 @@ class AIWin:
         r, g, b, _ = img_data[w, h]
         if (r > self.sensitivity or g > self.sensitivity or b > self.sensitivity) and (w, h) not in found:
             found[(w, h)] = True
-            obj.append((w, h))
+            obj.append((w, h, r + g + b)) # final part is a pixel score which is used if we have too many objects
             check_pixels.append((w, h))
 
     # look for one pixel that isn't black and then look for all its neighbours and declare an object
@@ -319,7 +332,7 @@ class AIWin:
                 # found an object
                 if (r > self.sensitivity or g > self.sensitivity or b > self.sensitivity) and (w, h) not in found:
                     found[(w, h)] = True # add to found pixels
-                    res.append([(w, h)])
+                    res.append([(w, h, r + g + b)])
                     obj = res[len(res) - 1]
                     check_pixels = []
                     check_pixels.append((w, h))
@@ -370,8 +383,8 @@ def end_callback():
 
 # after the user has had a go -> going to see what the algorithm did
 def start_ai(squares, time):
-    ai_win = AIWin(orig, changed, end_callback)
+    ai_win = AIWin(orig, changed, 3, end_callback)
     ai_win.run()
 
-user_win = UserWin(orig, changed, start_ai)
+user_win = UserWin(orig, changed, 3, start_ai)
 user_win.run()
