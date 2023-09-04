@@ -42,7 +42,7 @@
     "Image 2": {
         "before": "2-before.jpeg",
         "after": "2-after.jpg",
-        "num_differences": 7,
+        "num_differences": 0,
         "solutions": []
     },
     "Image 3": {

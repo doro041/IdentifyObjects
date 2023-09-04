@@ -170,7 +170,7 @@ class UserWin:
         self.orig_tk = ImageTk.PhotoImage(self.drawn_orig)
         self.orig_label["image"] = self.orig_tk
 
-
+    # closes the application
     def close_win(self):
         self.running = False
         if self.time_call is not None:
@@ -289,6 +289,7 @@ class UserWin:
                 self.draw_orig(self.square_orig)
                 self.draw_changed(self.square_changed)
 
+    # garbage collection
     def clear_up(self):
         self.square_orig.close()
         self.square_changed.close()
@@ -312,7 +313,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20, smallest_img: int = 10):
         self.win = Tk()
         self.win.title("Spot The Difference")
         self.win["bg"] = "black"
@@ -325,7 +326,10 @@ class AIWin:
 
         # sensitivity is used to control how different the pixels must be to be considered different
         self.sensitivity = sensitivity
+        # smallest img is used to discard objects of few pixels but have high variation
+        self.smallest_img = smallest_img
         self.diff_img = self.get_img_diff()
+        self.amp_img = self.get_amp_img_diff()
 
         # find all objects in the image
         pixel_objects = self.find_objects()
@@ -347,9 +351,9 @@ class AIWin:
                 if h > h1:
                     h1 = h
                 pixel_score += score
-            self.objects.append([(w0, h0), (w1, h1), pixel_score])
+            # use average in case have two large objects with a slight change in colour (JPEG compression)
+            self.objects.append([(w0, h0), (w1, h1), pixel_score / len(pixel_obj)])
         self.objects.sort(key=itemgetter(2), reverse=True)
-        print(self.objects)
         if num_differences > 0 and num_differences <= len(self.objects):
             self.objects = self.objects[0:num_differences]
 
@@ -359,10 +363,12 @@ class AIWin:
         orig_draw = ImageDraw.Draw(self.orig_img)
         changed_draw = ImageDraw.Draw(self.changed_img)
         diff_draw = ImageDraw.Draw(self.diff_img)
+        amp_draw = ImageDraw.Draw(self.amp_img)
         for obj in self.objects:
             orig_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
             changed_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
             diff_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
+            amp_draw.rectangle([obj[0], obj[1]], None, (255, 0, 0))
             self.selections.append([obj[0], obj[1]])
         self.score = do_score(self.selections, solutions, 0) # we won't give algorithm time credit
 
@@ -370,6 +376,7 @@ class AIWin:
         self.orig_tk = ImageTk.PhotoImage(self.orig_img)
         self.changed_tk = ImageTk.PhotoImage(self.changed_img)
         self.diff_tk = ImageTk.PhotoImage(self.diff_img)
+        self.amp_tk = ImageTk.PhotoImage(self.amp_img)
 
         # drawing the window
         self.logo_label = Label(self.win, image=self.logo_tk, bg="black")
@@ -386,7 +393,10 @@ class AIWin:
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
         self.diff_label = Label(self.bar, image=self.diff_tk, bg="white")
-        self.diff_label.grid(row=0, column=2, padx=20, pady=20)
+        self.diff_label.grid(row=1, column=0, padx=20, pady=20)
+
+        self.amp_label = Label(self.bar, image=self.amp_tk, bg="white")
+        self.amp_label.grid(row=1, column=1, padx=20, pady=20)
 
         self.ai_msg = Label(self.win, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
@@ -410,6 +420,20 @@ class AIWin:
                 r0, g0, b0, _ = data0[w, h]
                 r1, g1, b1, _ = data1[w, h]
                 res_draw.point([(w, h)], (abs(r1 - r0), abs(g1 - g0), abs(b1 - b0), 255))
+        return img_res
+
+    # takes the difference image and has white pixel where a colour channel is about the sensitivity level or else sets it to black. This image is what the algorithm uses for collecting all the objects and drawing boxes around them
+    def get_amp_img_diff(self):
+        data = self.diff_img.load()
+        img_res = Image.new("RGBA", (self.diff_img.width, self.diff_img.height))
+        res_draw = ImageDraw.Draw(img_res)
+        for w in range(self.diff_img.width):
+            for h in range(self.diff_img.height):
+                r, g, b, _ = data[w, h]
+                if r > self.sensitivity or g > self.sensitivity or b > self.sensitivity:
+                    res_draw.point([w, h], (255, 255, 255, 255))
+                else:
+                    res_draw.point([w, h], (0, 0, 0, 255))
         return img_res
 
     # checks if a given pixel should be added and if so does
@@ -454,16 +478,24 @@ class AIWin:
                             self.check_pixel(obj, data, check_w, check_h - 1, found, check_pixels)
                         if check_h < self.diff_img.height - 1:
                             self.check_pixel(obj, data, check_w, check_h + 1, found, check_pixels)
+        num_rem = 0
+        for i in range(len(res)):
+            if len(res[i - num_rem]) < self.smallest_img:
+                res.pop(i - num_rem)
+                num_rem += 1
         return res
 
+    # close the window and exit the application
     def close_win(self):
         self.clear_up()
         exit(0)
 
+    # garbage collection
     def clear_up(self):
         self.orig_img.close()
         self.changed_img.close()
         self.diff_img.close()
+        self.amp_img.close()
         self.logo.close()
         self.win.destroy()
 
@@ -518,7 +550,7 @@ for item in config_data:
     images.append(image_obj)
 
 # choose random image to use
-sel_img = images[4]
+sel_img = random.choice(images)
 
 # Open the images
 sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
