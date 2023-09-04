@@ -124,7 +124,7 @@ class UserWin:
         self.changed_tk = ImageTk.PhotoImage(self.drawn_changed)
         self.solutions = solutions
 
-        self.time = 60 # time to run for
+        self.time = 61 # time to run for +1s
         self.score = 0 # the player's score
         self.running = True # timer hasn't run out
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
@@ -236,7 +236,10 @@ class UserWin:
     def end_game(self):
         if self.time_call is not None:
             self.win.after_cancel(self.time_call)
-        self.time_label.config(text=f"{sec_to_time(self.time)}")
+        if self.time > 0:
+            self.time_label.config(text=f"{sec_to_time(self.time)}")
+        else:
+            self.time_label.config(text="Time's Up!")
         if self.num_differences > 0:
             self.diff_sol_label.grid_forget()
         self.score = do_score(self.squares, self.solutions, self.time)
@@ -247,12 +250,11 @@ class UserWin:
 
     # countdown timer
     def count_down(self):
-        self.time_label.config(text=f"{sec_to_time(self.time)}")
+        self.time -= 1
         if self.time > 0: # while still running
-            self.time -= 1
+            self.time_label.config(text=f"{sec_to_time(self.time)}")
             self.time_call = self.win.after(1000, self.count_down)
         else:
-            self.time_label.config(text="Time's Up!")
             # draw square images
             self.orig_tk = ImageTk.PhotoImage(self.square_orig)
             self.changed_tk = ImageTk.PhotoImage(self.square_changed)
