@@ -18,6 +18,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://www.geeksforgeeks.org/how-to-hide-recover-and-delete-tkinter-widgets/ for hiding the differences label while modifying it
   https://stackoverflow.com/questions/111155/how-do-i-handle-the-window-close-event-in-tkinter for overriding the window close method
   https://docs.python.org/3/library/json.html for working with json in python
+  https://stackoverflow.com/questions/14838635/quit-mainloop-in-python for exiting the window mainloop
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
@@ -102,9 +103,9 @@ def do_score(selections, solutions, time, leniance = 5):
 
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
-        self.win = Tk()
+        self.win = win
         self.win.title("Spot The Difference")
         self.win["bg"] = "black"
         self.squares = []
@@ -112,9 +113,7 @@ class UserWin:
 
         self.time_call = None # tkinter time call so can stop it if ongoing
 
-        # load logo and set images for user to draw to
-        self.logo = Image.open("Logo_Dark.png")
-        self.logo_tk = ImageTk.PhotoImage(self.logo)
+        # set images for user to draw to
         self.orig_img = orig_img # the original images
         self.changed_img = changed_img
         self.square_orig = orig_img.copy() # original image with all the selected squares drawn on it (used so have less drawing to do when user draws squares)
@@ -145,9 +144,6 @@ class UserWin:
         self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="ne")
 
-        self.logo_label = Label(self.win, image=self.logo_tk, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
-
         # where the images are
         self.orig_label = Label(self.lower_bar, image=self.orig_tk, bg="black")
         self.orig_label.grid(row=0, column=0, padx=20, pady=20)
@@ -176,11 +172,10 @@ class UserWin:
         if self.time_call is not None:
             self.win.after_cancel(self.time_call)
         self.clear_up()
+        self.win.destroy()
         self.orig_img.close()
         self.changed_img.close()
         exit(0)
-
-
 
     # draw new changed image in tkinter
     def draw_changed(self, img: Image):
@@ -293,10 +288,8 @@ class UserWin:
     def clear_up(self):
         self.square_orig.close()
         self.square_changed.close()
-        self.logo.close()
         self.drawn_orig.close()
         self.drawn_changed.close()
-        self.win.destroy()
 
     # next button pressed -> go onto next stage
     def next_clicked(self):
@@ -304,6 +297,13 @@ class UserWin:
             self.end_game()
         else:
             self.clear_up()
+            self.win.quit()
+            self.changed_label.destroy()
+            self.orig_label.destroy()
+            self.lower_bar.destroy()
+            self.next_button.destroy()
+            self.time_label.destroy()
+            self.diff_sol_label.destroy()
 
     # run main window
     def run(self):
@@ -313,13 +313,10 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20, smallest_img: int = 10):
-        self.win = Tk()
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20, smallest_img: int = 10):
+        self.win = win
         self.win.title("Spot The Difference")
-        self.win["bg"] = "black"
-        # logo image
-        self.logo = Image.open("Logo_Dark.png")
-        self.logo_tk = ImageTk.PhotoImage(self.logo)
+
         # have copies as going to draw on them
         self.orig_img = orig_img.copy()
         self.changed_img = changed_img.copy()
@@ -379,9 +376,6 @@ class AIWin:
         self.amp_tk = ImageTk.PhotoImage(self.amp_img)
 
         # drawing the window
-        self.logo_label = Label(self.win, image=self.logo_tk, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
-
         self.bar = Frame(self.win, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
 
@@ -488,6 +482,7 @@ class AIWin:
     # close the window and exit the application
     def close_win(self):
         self.clear_up()
+        self.win.destroy()
         exit(0)
 
     # garbage collection
@@ -496,12 +491,19 @@ class AIWin:
         self.changed_img.close()
         self.diff_img.close()
         self.amp_img.close()
-        self.logo.close()
-        self.win.destroy()
 
     # for going onto what's after this window
     def next_clicked(self):
         self.clear_up()
+        self.win.quit()
+        self.ai_msg.destroy()
+        self.next_button.destroy()
+        self.orig_label.destroy()
+        self.changed_label.destroy()
+        self.diff_label.destroy()
+        self.amp_label.destroy()
+        self.bar.destroy()
+        self.score_label.destroy()
 
     # we don't have much to do in run
     def run(self):
@@ -556,10 +558,23 @@ sel_img = random.choice(images)
 sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
 sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 
+# setup window
+win = Tk()
+win["bg"] = "black"
+
+logo = Image.open("Logo_Dark.png")
+logo_tk = ImageTk.PhotoImage(logo)
+logo_label = Label(win, image=logo_tk, bg="black")
+logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+
 # run main program
-user_win = UserWin(sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
+user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
 user_win.run()
-ai_win = AIWin(sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
+score = user_win.score
+ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
 ai_win.run()
+win.destroy()
 sel_img.orig_img.close()
 sel_img.diff_img.close()
+logo.close()
+print(f"score: {score}")
