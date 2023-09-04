@@ -349,7 +349,8 @@ class AIWin:
                 pixel_score += score
             self.objects.append([(w0, h0), (w1, h1), pixel_score])
         self.objects.sort(key=itemgetter(2), reverse=True)
-        if num_differences > 0:
+        print(self.objects)
+        if num_differences > 0 and num_differences <= len(self.objects):
             self.objects = self.objects[0:num_differences]
 
         self.selections = []
@@ -517,7 +518,7 @@ for item in config_data:
     images.append(image_obj)
 
 # choose random image to use
-sel_img = random.choice(images)
+sel_img = images[4]
 
 # Open the images
 sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
@@ -526,7 +527,7 @@ sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 # run main program
 user_win = UserWin(sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
 user_win.run()
-ai_win = AIWin(sel_img.orig_img, sel_img.diff_img, 3, sel_img.solutions)
+ai_win = AIWin(sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
 ai_win.run()
 sel_img.orig_img.close()
 sel_img.diff_img.close()
