@@ -3,6 +3,8 @@ from PIL import Image
 from PIL import ImageTk
 from PIL import ImageDraw
 from operator import itemgetter
+import json
+import random
 
 """
 Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - Fraser
@@ -14,12 +16,22 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://stackoverflow.com/questions/9776718/how-do-i-stop-tkinter-after-function for the after_cancel function
   https://docs.python.org/3/howto/sorting.html for sorting the list and mentioning the itemgetter function
   https://www.geeksforgeeks.org/how-to-hide-recover-and-delete-tkinter-widgets/ for hiding the differences label while modifying it
+  https://stackoverflow.com/questions/111155/how-do-i-handle-the-window-close-event-in-tkinter for overriding the window close method
+  https://docs.python.org/3/library/json.html for working with json in python
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
   I hope my commit with no changes isn't noticed
 """
 
+# keep reading from file until have all data
+def read_all(file):
+    text = ""
+    buffer = file.read()
+    while len(buffer) > 0:
+        text += buffer
+        buffer = file.read()
+    return text
 
 # converts seconds to str format in time in the format 0:00
 def sec_to_time(time: int):
@@ -90,7 +102,7 @@ def do_score(selections, solutions, time, leniance = 5):
 
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, fin_callback):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = Tk()
         self.win.title("Spot The Difference")
@@ -130,7 +142,7 @@ class UserWin:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white")
+        self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="ne")
 
         self.logo_label = Label(self.win, image=self.logo_tk, bg="black")
@@ -144,15 +156,12 @@ class UserWin:
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
         # events for images and the window
-        self.next_button.bind("<Button>", self.next_clicked)
         self.orig_label.bind("<Button-1>", self.img_clicked)
         self.orig_label.bind("<Motion>", self.img_move)
         self.changed_label.bind("<Button-1>", self.img_clicked)
         self.changed_label.bind("<Motion>", self.img_move)
         self.win.bind("<Key>", self.key_pressed)
-
-        # what should be called when time has run out
-        self.fin_callback = fin_callback
+        self.win.protocol("WM_DELETE_WINDOW", self.close_win)
 
     # draw new original image in tkinter and close the old one
     def draw_orig(self, img: Image):
@@ -160,6 +169,17 @@ class UserWin:
         self.drawn_orig = img.copy()
         self.orig_tk = ImageTk.PhotoImage(self.drawn_orig)
         self.orig_label["image"] = self.orig_tk
+
+
+    def close_win(self):
+        self.running = False
+        if self.time_call is not None:
+            self.win.after_cancel(self.time_call)
+        self.clear_up()
+        self.orig_img.close()
+        self.changed_img.close()
+        exit(0)
+
 
 
     # draw new changed image in tkinter
@@ -269,18 +289,20 @@ class UserWin:
                 self.draw_orig(self.square_orig)
                 self.draw_changed(self.square_changed)
 
+    def clear_up(self):
+        self.square_orig.close()
+        self.square_changed.close()
+        self.logo.close()
+        self.drawn_orig.close()
+        self.drawn_changed.close()
+        self.win.destroy()
+
     # next button pressed -> go onto next stage
-    def next_clicked(self, event):
+    def next_clicked(self):
         if self.running:
             self.end_game()
         else:
-            self.square_orig.close()
-            self.square_changed.close()
-            self.logo.close()
-            self.drawn_orig.close()
-            self.drawn_changed.close()
-            self.win.destroy()
-            self.fin_callback(self.score)
+            self.clear_up()
 
     # run main window
     def run(self):
@@ -290,7 +312,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, fin_callback, sensitivity: int = 20):
+    def __init__(self, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20):
         self.win = Tk()
         self.win.title("Spot The Difference")
         self.win["bg"] = "black"
@@ -368,18 +390,13 @@ class AIWin:
         self.ai_msg = Label(self.win, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = Button(self.win, text="Next", font=("arial", 30), fg="white", bg="black")
+        self.next_button = Button(self.win, text="Next", font=("arial", 30), fg="white", bg="black", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="ne")
 
         self.score_label = Label(self.win, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
         self.score_label.grid(row=2, column=1)
 
-        self.next_button.bind("<Button>", self.next_clicked)
-
-        # callback for when finished
-        self.fin_callback = fin_callback
-
-
+        self.win.protocol("WM_DELETE_WINDOW", self.close_win)
 
     # computes the difference in the pixels of the two images
     def get_img_diff(self):
@@ -438,36 +455,78 @@ class AIWin:
                             self.check_pixel(obj, data, check_w, check_h + 1, found, check_pixels)
         return res
 
-    # for going onto what's after this window
-    def next_clicked(self, event):
+    def close_win(self):
+        self.clear_up()
+        exit(0)
+
+    def clear_up(self):
         self.orig_img.close()
         self.changed_img.close()
         self.diff_img.close()
         self.logo.close()
         self.win.destroy()
-        self.fin_callback()
+
+    # for going onto what's after this window
+    def next_clicked(self):
+        self.clear_up()
 
     # we don't have much to do in run
     def run(self):
         self.win.mainloop()
 
+# an object to hold all the data about the two images to find the differences between
+class ImageDiff:
+    def __init__(self):
+        self.name = None
+        self.orig_name = None
+        self.diff_name = None
+        self.orig_img = None
+        self.diff_img = None
+        self.differences = None
+        self.solutions = None
+
+    def __str__(self):
+        return f"{{Name: {self.name}, orig img: {self.orig_name}, diff img: {self.diff_name}, num differences: {self.differences}, solutions: {self.solutions}}}"
+
+
+
+# load image data from config file
+config_file = open("config.json", "r")
+config_text = read_all(config_file)
+config_file.close()
+
+config_text = config_text.strip()
+# parse json data
+config_data = json.loads(config_text)
+
+images = []
+
+# extract the specific image data from the json file
+for item in config_data:
+    image_obj = ImageDiff()
+    image_obj.name = item
+    image_json_data = config_data[item]
+    image_obj.orig_name = image_json_data["before"]
+    image_obj.diff_name = image_json_data["after"]
+    image_obj.differences = image_json_data["num_differences"]
+    solutions_json = image_json_data["solutions"]
+    solutions = []
+    for sol_json in solutions_json:
+        solutions.append([(sol_json["top_left"]["w"], sol_json["top_left"]["h"]), (sol_json["bottom_right"]["w"], sol_json["bottom_right"]["h"]), sol_json["score"]])
+    image_obj.solutions = solutions
+    images.append(image_obj)
+
+# choose random image to use
+sel_img = random.choice(images)
 
 # Open the images
-orig = Image.open("1-before.jpeg").convert("RGBA")
-changed = Image.open("1-after.jpg").convert("RGBA")
-solutions = [[(196, 30), (233, 93), 1], [(170, 378), (193, 452), 1], [(188, 137), (205, 156), 1]]
+sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
+sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 
-# at very end of algorithm section
-def end_callback():
-    orig.close()
-    changed.close()
-    exit(0)
-
-# after the user has had a go -> going to see what the algorithm did
-def start_ai(score):
-    # this may look bad as though we give the algorithm all the solutions and it uses them but it does work them out and doesn't do that
-    ai_win = AIWin(orig, changed, 3, solutions, end_callback)
-    ai_win.run()
-
-user_win = UserWin(orig, changed, 3, solutions, start_ai)
+# run main program
+user_win = UserWin(sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
 user_win.run()
+ai_win = AIWin(sel_img.orig_img, sel_img.diff_img, 3, sel_img.solutions)
+ai_win.run()
+sel_img.orig_img.close()
+sel_img.diff_img.close()
