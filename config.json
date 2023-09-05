@@ -1,0 +1,158 @@
+{
+    "Image 1": {
+        "before": "1-before.jpeg",
+        "after": "1-after.jpg",
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 196,
+                    "h": 30
+                },
+                "bottom_right": {
+                    "w": 233,
+                    "h": 93
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 170,
+                    "h": 378
+                },
+                "bottom_right": {
+                    "w": 193,
+                    "h": 452
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 188,
+                    "h": 137
+                },
+                "bottom_right": {
+                    "w": 205,
+                    "h": 156
+                },
+                "score": 1
+            }
+        ]
+    },
+    "Image 2": {
+        "before": "2-before.jpeg",
+        "after": "2-after.jpg",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 3": {
+        "before": "3-before.jpeg",
+        "after": "3-after.jpg",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 4": {
+        "before": "4-a.jpeg",
+        "after": "4a-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 5": {
+        "before": "5-before.jpeg",
+        "after": "5-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 6": {
+        "before": "6-before.jpeg",
+        "after": "6-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 7": {
+        "before": "7-before.jpeg",
+        "after": "7-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Tux Small": {
+        "before": "tux_small.png",
+        "after": "tux_small2.png",
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 11,
+                    "h": 50
+                },
+                "bottom_right": {
+                    "w": 124,
+                    "h": 186
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 177,
+                    "h": 298
+                },
+                "bottom_right": {
+                    "w": 278,
+                    "h": 424
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 382,
+                    "h": 50
+                },
+                "bottom_right": {
+                    "w": 486,
+                    "h": 156
+                },
+                "score": 1
+            }
+        ]
+    },
+    "Tux Big": {
+        "before": "tux.png",
+        "after": "tux2.png",
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 41,
+                    "h": 106
+                },
+                "bottom_right": {
+                    "w": 253,
+                    "h": 355
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 911,
+                    "h": 342
+                },
+                "bottom_right": {
+                    "w": 1011,
+                    "h": 433
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 396,
+                    "h": 676
+                },
+                "bottom_right": {
+                    "w": 518,
+                    "h": 791
+                },
+                "score": 1
+            }
+        ]
+    }
+}
