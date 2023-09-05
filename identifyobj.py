@@ -564,7 +564,7 @@ sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 win = Tk()
 win["bg"] = "black"
 
-logo = Image.open("Logo_Dark.png")
+logo = Image.open("images/Logo_Dark.png")
 logo_tk = ImageTk.PhotoImage(logo)
 logo_label = Label(win, image=logo_tk, bg="black")
 logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")

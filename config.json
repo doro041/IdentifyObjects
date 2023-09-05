@@ -1,7 +1,7 @@
 {
     "Image 1": {
-        "before": "1-before.jpeg",
-        "after": "1-after.jpg",
+        "before": "images/1-before.jpeg",
+        "after": "images/1-after.jpg",
         "num_differences": 3,
         "solutions": [
             {
@@ -40,44 +40,44 @@
         ]
     },
     "Image 2": {
-        "before": "2-before.jpeg",
-        "after": "2-after.jpg",
+        "before": "images/2-before.jpeg",
+        "after": "images/2-after.jpg",
         "num_differences": 0,
         "solutions": []
     },
     "Image 3": {
-        "before": "3-before.jpeg",
-        "after": "3-after.jpg",
+        "before": "images/3-before.jpeg",
+        "after": "images/3-after.jpg",
         "num_differences": 0,
         "solutions": []
     },
     "Image 4": {
-        "before": "4-a.jpeg",
-        "after": "4a-after.png",
+        "before": "images/4-a.jpeg",
+        "after": "images/4a-after.png",
         "num_differences": 0,
         "solutions": []
     },
     "Image 5": {
-        "before": "5-before.jpeg",
-        "after": "5-after.png",
+        "before": "images/5-before.jpeg",
+        "after": "images/5-after.png",
         "num_differences": 0,
         "solutions": []
     },
     "Image 6": {
-        "before": "6-before.jpeg",
-        "after": "6-after.png",
+        "before": "images/6-before.jpeg",
+        "after": "images/6-after.png",
         "num_differences": 0,
         "solutions": []
     },
     "Image 7": {
-        "before": "7-before.jpeg",
-        "after": "7-after.png",
+        "before": "images/7-before.jpeg",
+        "after": "images/7-after.png",
         "num_differences": 0,
         "solutions": []
     },
     "Tux Small": {
-        "before": "tux_small.png",
-        "after": "tux_small2.png",
+        "before": "images/tux_small.png",
+        "after": "images/tux_small2.png",
         "num_differences": 3,
         "solutions": [
             {
@@ -116,8 +116,8 @@
         ]
     },
     "Tux Big": {
-        "before": "tux.png",
-        "after": "tux2.png",
+        "before": "images/tux.png",
+        "after": "images/tux2.png",
         "num_differences": 3,
         "solutions": [
             {
