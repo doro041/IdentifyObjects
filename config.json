@@ -51,6 +51,30 @@
         "num_differences": 0,
         "solutions": []
     },
+    "Image 4": {
+        "before": "4-a.jpeg",
+        "after": "4a-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 5": {
+        "before": "5-before.jpeg",
+        "after": "5-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 6": {
+        "before": "6-before.jpeg",
+        "after": "6-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
+    "Image 7": {
+        "before": "7-before.jpeg",
+        "after": "7-after.png",
+        "num_differences": 0,
+        "solutions": []
+    },
     "Tux Small": {
         "before": "tux_small.png",
         "after": "tux_small2.png",
