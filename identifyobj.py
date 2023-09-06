@@ -25,6 +25,14 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   I hope my commit with no changes isn't noticed
 """
 
+
+# setup window
+win = Tk()
+win["bg"] = "black"
+
+logo = Image.open("images/Logo_Dark.png")
+logo_tk = ImageTk.PhotoImage(logo)
+
 # keep reading from file until have all data
 def read_all(file):
     text = ""
@@ -128,6 +136,9 @@ class UserWin:
         self.score = 0 # the player's score
         self.running = True # timer hasn't run out
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
+        self.logo_label = Label(self.win, image=logo_tk, bg="black")
+        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+
         self.lower_bar = Frame(self.win, bg="black")
         self.lower_bar.grid(row=1, column=0, columnspan=3)
 
@@ -306,6 +317,7 @@ class UserWin:
             self.next_button.destroy()
             self.time_label.destroy()
             self.diff_sol_label.destroy()
+            self.logo_label.destroy()
 
     # run main window
     def run(self):
@@ -378,6 +390,10 @@ class AIWin:
         self.amp_tk = ImageTk.PhotoImage(self.amp_img)
 
         # drawing the window
+
+        self.logo_label = Label(self.win, image=logo_tk, bg="black")
+        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+
         self.bar = Frame(self.win, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
 
@@ -505,6 +521,7 @@ class AIWin:
         self.diff_label.destroy()
         self.amp_label.destroy()
         self.bar.destroy()
+        self.logo_label.destroy()
         self.score_label.destroy()
 
     # we don't have much to do in run
@@ -560,14 +577,6 @@ sel_img = random.choice(images)
 sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
 sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 
-# setup window
-win = Tk()
-win["bg"] = "black"
-
-logo = Image.open("images/Logo_Dark.png")
-logo_tk = ImageTk.PhotoImage(logo)
-logo_label = Label(win, image=logo_tk, bg="black")
-logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
 # run main program
 user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
