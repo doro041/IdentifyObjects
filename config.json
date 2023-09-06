@@ -6,7 +6,7 @@
         "solutions": [
             {
                 "top_left": {
-                    "w": 196,
+                    "w": 198,
                     "h": 30
                 },
                 "bottom_right": {
@@ -17,23 +17,23 @@
             },
             {
                 "top_left": {
-                    "w": 170,
-                    "h": 378
+                    "w": 169,
+                    "h": 376
                 },
                 "bottom_right": {
-                    "w": 193,
+                    "w": 196,
                     "h": 452
                 },
                 "score": 1
             },
             {
                 "top_left": {
-                    "w": 188,
-                    "h": 137
+                    "w": 186,
+                    "h": 136
                 },
                 "bottom_right": {
                     "w": 205,
-                    "h": 156
+                    "h": 159
                 },
                 "score": 1
             }
@@ -42,38 +42,254 @@
     "Image 2": {
         "before": "images/2-before.jpeg",
         "after": "images/2-after.jpg",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 358,
+                    "h": 290
+                },
+                "bottom_right": {
+                    "w": 368,
+                    "h": 339
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 403,
+                    "h": 241
+                },
+                "bottom_right": {
+                    "w": 410,
+                    "h": 260
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 172,
+                    "h": 85
+                },
+                "bottom_right": {
+                    "w": 180,
+                    "h": 133
+                },
+                "score": 1
+            }
+        ]
     },
     "Image 3": {
         "before": "images/3-before.jpeg",
         "after": "images/3-after.jpg",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 8,
+                    "h": 245
+                },
+                "bottom_right": {
+                    "w": 20,
+                    "h": 281
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 218,
+                    "h": 400
+                },
+                "bottom_right": {
+                    "w": 236,
+                    "h": 446
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 533,
+                    "h": 334
+                },
+                "bottom_right": {
+                    "w": 551,
+                    "h": 354
+                },
+                "score": 1
+            }
+        ]
     },
     "Image 4": {
         "before": "images/4-a.jpeg",
         "after": "images/4a-after.png",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 4,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 263,
+                    "h": 373
+                },
+                "bottom_right": {
+                    "w": 267,
+                    "h": 389
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 368,
+                    "h": 311
+                },
+                "bottom_right": {
+                    "w": 381,
+                    "h": 322
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 358,
+                    "h": 254
+                },
+                "bottom_right": {
+                    "w": 369,
+                    "h": 263
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 366,
+                    "h": 216
+                },
+                "bottom_right": {
+                    "w": 401,
+                    "h": 233
+                },
+                "score": 1
+            }
+        ]
     },
     "Image 5": {
         "before": "images/5-before.jpeg",
         "after": "images/5-after.png",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 412,
+                    "h": 200
+                },
+                "bottom_right": {
+                    "w": 207,
+                    "h": 461
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 205,
+                    "h": 535
+                },
+                "bottom_right": {
+                    "w": 234,
+                    "h": 585
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 408,
+                    "h": 413
+                },
+                "bottom_right": {
+                    "w": 429,
+                    "h": 465
+                },
+                "score": 1
+            }
+        ]
     },
     "Image 6": {
         "before": "images/6-before.jpeg",
         "after": "images/6-after.png",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 0,
+                    "h": 238
+                },
+                "bottom_right":
+                {
+                    "w": 21,
+                    "h": 264
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 108,
+                    "h": 237
+                },
+                "bottom_right": {
+                    "w": 131,
+                    "h": 343
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 396,
+                    "h": 293
+                },
+                "bottom_right": {
+                    "w": 428,
+                    "h": 332
+                },
+                "score": 1
+            }
+        ]
     },
     "Image 7": {
         "before": "images/7-before.jpeg",
         "after": "images/7-after.png",
-        "num_differences": 0,
-        "solutions": []
+        "num_differences": 3,
+        "solutions": [
+            {
+                "top_left": {
+                    "w": 229,
+                    "h": 391
+                },
+                "bottom_right": {
+                    "w": 319,
+                    "h": 442
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 574,
+                    "h": 429
+                },
+                "bottom_right": {
+                    "w": 610,
+                    "h": 503
+                },
+                "score": 1
+            },
+            {
+                "top_left": {
+                    "w": 610,
+                    "h": 245
+                },
+                "bottom_right": {
+                    "w": 645,
+                    "h": 256
+                },
+                "score": 1
+            }
+        ]
     },
     "Tux Small": {
         "before": "images/tux_small.png",
