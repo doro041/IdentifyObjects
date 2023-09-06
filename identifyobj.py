@@ -142,7 +142,7 @@ class UserWin:
             self.diff_sol_label.grid(row=2, column=1)
 
         self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white", command=self.next_clicked)
-        self.next_button.grid(row=0, column=2, sticky="ne")
+        self.next_button.grid(row=0, column=2, sticky="e")
 
         # where the images are
         self.orig_label = Label(self.lower_bar, image=self.orig_tk, bg="black")
@@ -398,7 +398,7 @@ class AIWin:
         self.ai_msg.grid(row=0, column=1)
 
         self.next_button = Button(self.win, text="Next", font=("arial", 30), fg="white", bg="black", command=self.next_clicked)
-        self.next_button.grid(row=0, column=2, sticky="ne")
+        self.next_button.grid(row=0, column=2, sticky="e")
 
         self.score_label = Label(self.win, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
         self.score_label.grid(row=2, column=1)
