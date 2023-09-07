@@ -44,8 +44,11 @@ win = Tk()
 win["bg"] = "black"
 
 # allow logo to be accessible for use for both windows without multiple loads
-logo = Image.open("images/Logo_Dark.png")
+logo = Image.open("images/AILOGO.png")
 logo_tk = ImageTk.PhotoImage(logo)
+
+next_img = Image.open("images/NextButton.png")
+next_tk = ImageTk.PhotoImage(next_img)
 
 # keep reading from file until have all data
 def read_all(file):
@@ -172,7 +175,7 @@ class UserWin:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = Button(self.base_frame, text="Next", font=("arial", 30), bg="black", fg="white", command=self.next_clicked)
+        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         # where the images are
@@ -460,7 +463,7 @@ class AIWin:
         self.ai_msg = Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = Button(self.base_frame, text="Next", font=("arial", 30), fg="white", bg="black", command=self.next_clicked)
+        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         self.score_label = Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
