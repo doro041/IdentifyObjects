@@ -2,14 +2,14 @@
 Freshers Fayre AI society project
 
 ## config.json file
-This file is used for configuring which images should be compared for differences.
+This file serves as a configuration document for specifying the criteria for comparing images to detect disparities.
 
-Inside the root json object each set of images is laid out with a name of your choosing.
-For each image set object, there should be a field named before which has the path to one image and another field called after which has the path of the other image.
-There should also be the field num_differences which is the number of differences between the images. There should also be the field solutions.
-The field solutions is an array of objects which can be empty but probably shouldn't be.
-For each object:
-There should be a field top_left which is an object with fields w and h where w is the x coord of the top left corner of the difference and y is the y coord
-There should also be a field bottom_right which is an object like top_left but the coordinates are for the bottom right corner
-The box defined should just cross the edge pixels of the difference
-There should also be a field called score which holds the score gained for finding that difference. This cannot be larger than or equal to 1000000000 due to selecting the score for multiple differences in a selected area
+Within the primary JSON object, each collection of images is organized with a user-defined name. For each image set object, two essential fields must be included: "before," which denotes the path to one image, and "after," which designates the path to another image. Additionally, there should be a field labeled "num_differences" representing the count of discrepancies observed between the images. Furthermore, the document should encompass a "solutions" field, which takes the form of an array of objects. While this array can be empty, it is advisable to provide content.
+
+For each object within the "solutions" array, certain key attributes are expected:
+
+    "top_left": This is an object containing the fields "w" and "h," where "w" represents the x-coordinate of the top-left corner of the difference, and "h" denotes the y-coordinate of the same corner.
+
+    "bottom_right": Similar to "top_left," this is an object with "w" and "h" fields, specifying the coordinates of the bottom-right corner of the difference. It's important to note that the defined rectangle should encompass the edge pixels of the observed difference.
+
+    "score": This field holds the score assigned for detecting the respective difference. It's crucial to ensure that this score does not exceed or equal 1,000,000,000, considering that multiple differences within a selected area are evaluated in terms of their scores.
