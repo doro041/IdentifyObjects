@@ -126,6 +126,9 @@ def do_score(selections, solutions, time, leniance = 5):
     return score
 # solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
 
+# Window options: scroll -> add scrolling support, human_vision -> add biases to colours based on human perception
+# Not using human_vision, sensitivity of 20 is good. I advise using 180 if you are using it though.
+
 # User Window for player's attempt
 class UserWin:
     def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll: bool = False):
