@@ -19,19 +19,36 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://stackoverflow.com/questions/111155/how-do-i-handle-the-window-close-event-in-tkinter for overriding the window close method
   https://docs.python.org/3/library/json.html for working with json in python
   https://stackoverflow.com/questions/14838635/quit-mainloop-in-python for exiting the window mainloop
+  https://stackoverflow.com/questions/68882832/scrollable-buttons-in-tkinter for explaining that you can't scroll things in a frame - you need a canvas
+  https://stackoverflow.com/questions/3085696/adding-a-scrollbar-to-a-group-of-widgets-in-tkinter for scrolling of tkinter widgets
+  https://www.pythontutorial.net/tkinter/tkinter-pack/ for explaining the pack function
+  https://stackoverflow.com/questions/4310489/how-do-i-remove-the-light-grey-border-around-my-canvas-widget for removing the canvas border
+  https://obsessive-coffee-disorder.com/rgb-to-grayscale-using-cimg/ for explaining human colour perception
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
   I hope my commit with no changes isn't noticed
 """
 
+# Colour Constants based on human colour perception
+RedMul = 0.299 # For scoring how different pixels are (high means more noticable)
+GreenMul = 0.587
+BlueMul = 0.114
+# These are for creating sensitivity boundaries (high means less noticable)
+RedInvMul = 0.242
+GreenInvMul = 0.123
+BlueInvMul = 0.635
 
 # setup window
 win = Tk()
 win["bg"] = "black"
 
-logo = Image.open("images/Logo_Dark.png")
+# allow logo to be accessible for use for both windows without multiple loads
+logo = Image.open("images/AILOGO.png")
 logo_tk = ImageTk.PhotoImage(logo)
+
+next_img = Image.open("images/NextButton.png")
+next_tk = ImageTk.PhotoImage(next_img)
 
 # keep reading from file until have all data
 def read_all(file):
@@ -109,9 +126,12 @@ def do_score(selections, solutions, time, leniance = 5):
     return score
 # solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
 
+# Window options: scroll -> add scrolling support, human_vision -> add biases to colours based on human perception
+# Not using human_vision, sensitivity of 20 is good. I advise using 180 if you are using it though.
+
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll: bool = False):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = win
         self.win.title("Spot The Difference")
@@ -136,23 +156,29 @@ class UserWin:
         self.score = 0 # the player's score
         self.running = True # timer hasn't run out
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
-        self.logo_label = Label(self.win, image=logo_tk, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+        self.canvas = Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0) # use canvas as it supports scrolling
+        self.base_frame = Frame(self.canvas, bg="black") # have frame so can do neat grid layout
+        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
+        self.canvas.pack(side="left", fill="both", expand=True) # make sure canvas takes up whole window
 
-        self.lower_bar = Frame(self.win, bg="black")
+        self.lower_bar = Frame(self.base_frame, bg="black")
         self.lower_bar.grid(row=1, column=0, columnspan=3)
 
         # displaying things on the screen
-        self.time_label = Label(self.win, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
+
+        self.logo_label = Label(self.base_frame, image=logo_tk, bg="black")
+        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+
+        self.time_label = Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
 
-        self.diff_sol_label = Label(self.win, text=f"", font=("arial", 30), bg="black", fg="magenta")
+        self.diff_sol_label = Label(self.base_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
 
         if num_differences > 0:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = Button(self.win, text="Next", font=("arial", 30), bg="black", fg="white", command=self.next_clicked)
+        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         # where the images are
@@ -162,13 +188,25 @@ class UserWin:
         self.changed_label = Label(self.lower_bar, image=self.changed_tk, bg="black")
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
+        # vertical scrollbar
+        self.scroll = scroll
+        if scroll:
+            self.scroll_bar = Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
+            self.canvas.configure(yscrollcommand=self.scroll_bar.set)
+            self.scroll_bar.pack(side="right", fill="y")
+
         # events for images and the window
         self.orig_label.bind("<Button-1>", self.img_clicked)
         self.orig_label.bind("<Motion>", self.img_move)
         self.changed_label.bind("<Button-1>", self.img_clicked)
         self.changed_label.bind("<Motion>", self.img_move)
+        self.base_frame.bind("<Configure>", self.config_base)
         self.win.bind("<Key>", self.key_pressed)
         self.win.protocol("WM_DELETE_WINDOW", self.close_win)
+
+    # makes sure that the entire region is scrollable one base_frame is configured
+    def config_base(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     # draw new original image in tkinter and close the old one
     def draw_orig(self, img: Image):
@@ -317,7 +355,10 @@ class UserWin:
             self.next_button.destroy()
             self.time_label.destroy()
             self.diff_sol_label.destroy()
-            self.logo_label.destroy()
+            if self.scroll:
+                self.scroll_bar.destroy()
+            self.base_frame.destroy()
+            self.canvas.destroy()
 
     # run main window
     def run(self):
@@ -327,7 +368,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, sensitivity: int = 20, smallest_img: int = 10):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll = False, human_colour = False, sensitivity: int = 20, smallest_img: int = 10):
         self.win = win
         self.win.title("Spot The Difference")
 
@@ -335,13 +376,21 @@ class AIWin:
         self.orig_img = orig_img.copy()
         self.changed_img = changed_img.copy()
 
+        self.human_colour = human_colour
         # sensitivity is used to control how different the pixels must be to be considered different
-        self.sensitivity = sensitivity
+        if human_colour:
+            self.r_sens = sensitivity * RedInvMul
+            self.g_sens = sensitivity * GreenInvMul
+            self.b_sens = sensitivity * BlueInvMul
+        else:
+            self.sensitivity = sensitivity
+
         # smallest img is used to discard objects of few pixels but have high variation
         self.smallest_img = smallest_img
         self.diff_img = self.get_img_diff()
+        pixel_objects = []
         self.amp_img = self.get_amp_img_diff()
-
+        
         # find all objects in the image
         pixel_objects = self.find_objects()
         self.objects = []
@@ -389,12 +438,16 @@ class AIWin:
         self.diff_tk = ImageTk.PhotoImage(self.diff_img)
         self.amp_tk = ImageTk.PhotoImage(self.amp_img)
 
-        # drawing the window
+        self.canvas = Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0)
+        self.base_frame = Frame(self.canvas, bg="black")
+        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
+        self.canvas.pack(side="left", fill="both", expand=True)
 
-        self.logo_label = Label(self.win, image=logo_tk, bg="black")
+        # drawing the window
+        self.logo_label = Label(self.base_frame, image=logo_tk, bg="black")
         self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
-        self.bar = Frame(self.win, bg="black")
+        self.bar = Frame(self.base_frame, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
 
         self.orig_label = Label(self.bar, image=self.orig_tk, bg="black")
@@ -410,16 +463,28 @@ class AIWin:
         self.amp_label = Label(self.bar, image=self.amp_tk, bg="white")
         self.amp_label.grid(row=1, column=1, padx=20, pady=20)
 
-        self.ai_msg = Label(self.win, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
+        self.ai_msg = Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = Button(self.win, text="Next", font=("arial", 30), fg="white", bg="black", command=self.next_clicked)
+        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
-        self.score_label = Label(self.win, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
+        self.score_label = Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
         self.score_label.grid(row=2, column=1)
+        
+        self.scroll = scroll
+        if scroll:
+            self.scroll_bar = Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
+            self.canvas.configure(yscrollcommand=self.scroll_bar.set)
+            self.scroll_bar.pack(side="right", fill="y")
 
+
+        self.base_frame.bind("<Configure>", self.config_base)
         self.win.protocol("WM_DELETE_WINDOW", self.close_win)
+
+    # make sure entire base_frame can be scrolled to
+    def config_base(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     # computes the difference in the pixels of the two images
     def get_img_diff(self):
@@ -434,6 +499,17 @@ class AIWin:
                 res_draw.point([(w, h)], (abs(r1 - r0), abs(g1 - g0), abs(b1 - b0), 255))
         return img_res
 
+    # checks the colour is above the threshold and the pixel should be counted as a difference
+    def check_colour(self, r, g, b):
+        return (not self.human_colour and (r > self.sensitivity or g > self.sensitivity or b > self.sensitivity)) or (self.human_colour and (r > self.r_sens or g > self.g_sens or b > self.b_sens))
+
+    # scores the pixel based on how different it is
+    def score_pixel(self, r, g, b):
+        if self.human_colour:
+            return r * RedMul + g * GreenMul + b * BlueMul
+        else:
+            return r + g + b
+    
     # takes the difference image and has white pixel where a colour channel is about the sensitivity level or else sets it to black. This image is what the algorithm uses for collecting all the objects and drawing boxes around them
     def get_amp_img_diff(self):
         data = self.diff_img.load()
@@ -442,18 +518,19 @@ class AIWin:
         for w in range(self.diff_img.width):
             for h in range(self.diff_img.height):
                 r, g, b, _ = data[w, h]
-                if r > self.sensitivity or g > self.sensitivity or b > self.sensitivity:
+                if self.check_colour(r, g, b):
                     res_draw.point([w, h], (255, 255, 255, 255))
                 else:
                     res_draw.point([w, h], (0, 0, 0, 255))
         return img_res
 
+
     # checks if a given pixel should be added and if so does
     def check_pixel(self, obj, img_data, w, h, found, check_pixels):
         r, g, b, _ = img_data[w, h]
-        if (r > self.sensitivity or g > self.sensitivity or b > self.sensitivity) and (w, h) not in found:
+        if self.check_colour(r, g, b) and (w, h) not in found:
             found[(w, h)] = True
-            obj.append((w, h, r + g + b)) # final part is a pixel score which is used if we have too many objects
+            obj.append((w, h, self.score_pixel(r, g, b))) # final part is a pixel score which is used if we have too many objects
             check_pixels.append((w, h))
 
     # look for one pixel that isn't black and then look for all its neighbours and declare an object
@@ -465,9 +542,9 @@ class AIWin:
             for h in range(self.diff_img.height):
                 r, g, b, _ = data[w, h]
                 # found an object
-                if (r > self.sensitivity or g > self.sensitivity or b > self.sensitivity) and (w, h) not in found:
+                if self.check_colour(r, g, b) and (w, h) not in found:
                     found[(w, h)] = True # add to found pixels
-                    res.append([(w, h, r + g + b)])
+                    res.append([(w, h, self.score_pixel(r, g, b))])
                     obj = res[len(res) - 1]
                     check_pixels = []
                     check_pixels.append((w, h))
@@ -521,8 +598,12 @@ class AIWin:
         self.diff_label.destroy()
         self.amp_label.destroy()
         self.bar.destroy()
-        self.logo_label.destroy()
         self.score_label.destroy()
+        self.logo_label.destroy()
+        self.base_frame.destroy()
+        self.canvas.destroy()
+        if self.scroll:
+            self.scroll_bar.destroy()
 
     # we don't have much to do in run
     def run(self):
