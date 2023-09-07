@@ -625,48 +625,52 @@ class ImageDiff:
 
 
 
-# load image data from config file
-config_file = open("config.json", "r")
-config_text = read_all(config_file)
-config_file.close()
+def run(win):
+    # load image data from config file
+    config_file = open("config.json", "r")
+    config_text = read_all(config_file)
+    config_file.close()
 
-config_text = config_text.strip()
-# parse json data
-config_data = json.loads(config_text)
+    config_text = config_text.strip()
+    # parse json data
+    config_data = json.loads(config_text)
 
-images = []
+    images = []
 
-# extract the specific image data from the json file
-for item in config_data:
-    image_obj = ImageDiff()
-    image_obj.name = item
-    image_json_data = config_data[item]
-    image_obj.orig_name = image_json_data["before"]
-    image_obj.diff_name = image_json_data["after"]
-    image_obj.differences = image_json_data["num_differences"]
-    solutions_json = image_json_data["solutions"]
-    solutions = []
-    for sol_json in solutions_json:
-        solutions.append([(sol_json["top_left"]["w"], sol_json["top_left"]["h"]), (sol_json["bottom_right"]["w"], sol_json["bottom_right"]["h"]), sol_json["score"]])
-    image_obj.solutions = solutions
-    images.append(image_obj)
+    # extract the specific image data from the json file
+    for item in config_data:
+        image_obj = ImageDiff()
+        image_obj.name = item
+        image_json_data = config_data[item]
+        image_obj.orig_name = image_json_data["before"]
+        image_obj.diff_name = image_json_data["after"]
+        image_obj.differences = image_json_data["num_differences"]
+        solutions_json = image_json_data["solutions"]
+        solutions = []
+        for sol_json in solutions_json:
+            solutions.append([(sol_json["top_left"]["w"], sol_json["top_left"]["h"]), (sol_json["bottom_right"]["w"], sol_json["bottom_right"]["h"]), sol_json["score"]])
+        image_obj.solutions = solutions
+        images.append(image_obj)
 
-# choose random image to use
-sel_img = random.choice(images)
+    # choose random image to use
+    sel_img = random.choice(images)
 
-# Open the images
-sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
-sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
+    # Open the images
+    sel_img.orig_img = Image.open(sel_img.orig_name).convert("RGBA")
+    sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 
+    # run main program
+    user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
+    user_win.run()
+    score = user_win.score
+    ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions, scroll=True, smallest_img=30) # smallest_img > 10 is better on one of the images where the algorithm now selects the whole lamp
+    ai_win.run()
+    sel_img.orig_img.close()
+    sel_img.diff_img.close()
+    return (user_win.score, user_win.time)
 
-# run main program
-user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
-user_win.run()
-score = user_win.score
-ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
-ai_win.run()
+print(run(win))
+
 win.destroy()
-sel_img.orig_img.close()
-sel_img.diff_img.close()
 logo.close()
-print(f"score: {score}")
+next_img.close()
