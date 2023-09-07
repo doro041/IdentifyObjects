@@ -1,6 +1,5 @@
 # IdentifyObjects
-Freshers Fayre AI society project
-
+"IdentifyObjects" is an AI society project designed to enhance the Freshers Fayre experience for university students. This project involves developing a user-friendly app that offers an engaging game with a leadership board.  This project is relevant to Freshers' Fayre events as it modernizes and streamlines the experience, aligning with the goal of helping students discover extracurricular opportunities and integrate into campus life.
 ## config.json file
 This file serves as a configuration document for specifying the criteria for comparing images to detect disparities.
 
