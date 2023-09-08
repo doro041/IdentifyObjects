@@ -24,6 +24,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://www.pythontutorial.net/tkinter/tkinter-pack/ for explaining the pack function
   https://stackoverflow.com/questions/4310489/how-do-i-remove-the-light-grey-border-around-my-canvas-widget for removing the canvas border
   https://obsessive-coffee-disorder.com/rgb-to-grayscale-using-cimg/ for explaining human colour perception
+  https://coderslegacy.com/python/change-tkinter-window-icon/ for using iconphoto and that iconbitmap only supports png image files on certain platforms
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
@@ -46,6 +47,8 @@ win["bg"] = "black"
 # allow logo to be accessible for use for both windows without multiple loads
 logo = Image.open("images/AILOGO.png")
 logo_tk = ImageTk.PhotoImage(logo)
+
+win.iconphoto(False, logo_tk)
 
 next_img = Image.open("images/NextButton.png")
 next_tk = ImageTk.PhotoImage(next_img)
