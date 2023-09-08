@@ -372,16 +372,9 @@ class UserWin:
         else:
             self.clear_up()
             self.win.quit()
-            self.changed_label.destroy()
-            self.orig_label.destroy()
-            self.lower_bar.destroy()
-            self.next_button.destroy()
-            self.time_label.destroy()
-            self.diff_sol_label.destroy()
+            self.canvas.destroy()
             if self.scroll:
                 self.scroll_bar.destroy()
-            self.base_frame.destroy()
-            self.canvas.destroy()
 
     # run main window
     def run(self):
@@ -614,16 +607,6 @@ class AIWin:
     def next_clicked(self):
         self.clear_up()
         self.win.quit()
-        self.ai_msg.destroy()
-        self.next_button.destroy()
-        self.orig_label.destroy()
-        self.changed_label.destroy()
-        self.diff_label.destroy()
-        self.amp_label.destroy()
-        self.bar.destroy()
-        self.score_label.destroy()
-        self.logo_label.destroy()
-        self.base_frame.destroy()
         self.canvas.destroy()
         if self.scroll:
             self.scroll_bar.destroy()
