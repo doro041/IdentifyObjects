@@ -81,6 +81,35 @@ def box_inside(b0, b1):
         return True
     return False
 
+# Holds solution data
+class Solution:
+    def __init__(self):
+        self.sol = [(0, 0), (0, 0)] # Main solution
+        self.alt = None # Alternative solution
+        self.score = 0
+
+# returns true if solution box is in right area
+def check_sol_box(rec, x0, y0, x1, y1, leniance):
+    # create inner and outer boxes so there can be some error
+    inner_x0 = x0 + leniance
+    inner_y0 = y0 + leniance
+    inner_x1 = x1 - leniance
+    inner_y1 = y1 - leniance
+    if inner_x0 > inner_x1:
+        inner_x0 = (x0 + x1) // 2 # use average middle pixel for both as is line
+        inner_x1 = inner_x0
+    if inner_y0 > inner_y1:
+        inner_y0 = (y0 + y1) // 2
+        inner_y1 = inner_y0
+    outer_x0 = x0 - leniance
+    outer_y0 = y0 - leniance
+    outer_x1 = x1 + leniance
+    outer_y1 = y1 + leniance
+    if box_inside([(inner_x0, inner_y0), (inner_x1, inner_y1)], rec) and box_inside(rec, [(outer_x0, outer_y0), (outer_x1, outer_y1)]):
+        return True
+    return False
+
+
 # calculates the score for the player leniance -> how far either side of axis error can be to still be rewarded points for solution. Score algorithm may change in future
 def do_score(selections, solutions, time, leniance = 5):
     num_correct = 0 # how many of the solutions the player got right
@@ -90,37 +119,28 @@ def do_score(selections, solutions, time, leniance = 5):
         rec_solutions = []
         for i in range(len(solutions)):
             if i not in solutions_used:
-                sol = solutions[i]
-                x0, y0 = sol[0]
-                x1, y1 = sol[1]
-                # create inner and outer boxes so there can be some error
-                inner_x0 = x0 + leniance
-                inner_y0 = y0 + leniance
-                inner_x1 = x1 - leniance
-                inner_y1 = y1 - leniance
-                if inner_x0 > inner_x1:
-                    inner_x0 = (x0 + x1) // 2 # use average middle pixel for both as is line
-                    inner_x1 = inner_x0
-                if inner_y0 > inner_y1:
-                    inner_y0 = (y0 + y1) // 2
-                    inner_y1 = inner_y0
-                outer_x0 = x0 - leniance
-                outer_y0 = y0 - leniance
-                outer_x1 = x1 + leniance
-                outer_y1 = y1 + leniance
-                if box_inside([(inner_x0, inner_y0), (inner_x1, inner_y1)], rec) and box_inside(rec, [(outer_x0, outer_y0), (outer_x1, outer_y1)]):
+                solution = solutions[i]
+                x0, y0 = solution.sol[0]
+                x1, y1 = solution.sol[1]
+                if check_sol_box(rec, x0, y0, x1, y1, leniance):
                     rec_solutions.append(i) # possible solution
+                elif solution.alt is not None:
+                    x0, y0 = solution.alt[0]
+                    x1, y1 = solution.alt[1]
+                    if check_sol_box(rec, x0, y0, x1, y1, leniance):
+                        rec_solutions.append(i)
+
         # select lowest scoring solution
         chosen = -1
         chosen_score = 1000000000 # don't add scores bigger than this
         for sol_index in rec_solutions:
-            if solutions[sol_index][2] < chosen_score:
+            if solutions[sol_index].score < chosen_score:
                 chosen = sol_index
-                chosen_score = solutions[sol_index][2]
+                chosen_score = solutions[sol_index].score
         if chosen != -1:
             num_correct += 1
             solutions_used.append(chosen)
-            score += solutions[sol_index][2]
+            score += solutions[sol_index].score
     if num_correct == len(solutions):
         score += time # time bonus for if have all solutions and there is time left
     return score
@@ -648,7 +668,13 @@ def run(win):
         solutions_json = image_json_data["solutions"]
         solutions = []
         for sol_json in solutions_json:
-            solutions.append([(sol_json["top_left"]["w"], sol_json["top_left"]["h"]), (sol_json["bottom_right"]["w"], sol_json["bottom_right"]["h"]), sol_json["score"]])
+            s = Solution()
+            s.sol = [(sol_json["top_left"]["w"], sol_json["top_left"]["h"]), (sol_json["bottom_right"]["w"], sol_json["bottom_right"]["h"])]
+            s.score = sol_json["score"]
+            if "alt" in sol_json:
+                alt_sol_json = sol_json["alt"]
+                s.alt = [(alt_sol_json["top_left"]["w"], alt_sol_json["top_left"]["h"]), (alt_sol_json["bottom_right"]["w"], alt_sol_json["bottom_right"]["h"])]
+            solutions.append(s)
         image_obj.solutions = solutions
         images.append(image_obj)
 
