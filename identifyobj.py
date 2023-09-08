@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 from PIL import Image
 from PIL import ImageTk
 from PIL import ImageDraw
@@ -40,7 +40,7 @@ GreenInvMul = 0.123
 BlueInvMul = 0.635
 
 # setup window
-win = Tk()
+win = tk.Tk()
 win["bg"] = "black"
 
 # allow logo to be accessible for use for both windows without multiple loads
@@ -147,7 +147,7 @@ def do_score(selections, solutions, time, leniance = 5):
 # solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
 
 # Window options: scroll -> add scrolling support, human_vision -> add biases to colours based on human perception
-# Not using human_vision, sensitivity of 20 is good. I advise using 180 if you are using it though.
+# Not using human_vision, sensitivity of 20 is good. I advise using 110 if you are using it though.
 
 # User Window for player's attempt
 class UserWin:
@@ -176,42 +176,42 @@ class UserWin:
         self.score = 0 # the player's score
         self.running = True # timer hasn't run out
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
-        self.canvas = Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0) # use canvas as it supports scrolling
-        self.base_frame = Frame(self.canvas, bg="black") # have frame so can do neat grid layout
+        self.canvas = tk.Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0) # use canvas as it supports scrolling
+        self.base_frame = tk.Frame(self.canvas, bg="black") # have frame so can do neat grid layout
         self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
         self.canvas.pack(side="left", fill="both", expand=True) # make sure canvas takes up whole window
 
-        self.lower_bar = Frame(self.base_frame, bg="black")
+        self.lower_bar = tk.Frame(self.base_frame, bg="black")
         self.lower_bar.grid(row=1, column=0, columnspan=3)
 
         # displaying things on the screen
 
-        self.logo_label = Label(self.base_frame, image=logo_tk, bg="black")
+        self.logo_label = tk.Label(self.base_frame, image=logo_tk, bg="black")
         self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
-        self.time_label = Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
+        self.time_label = tk.Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
 
-        self.diff_sol_label = Label(self.base_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
+        self.diff_sol_label = tk.Label(self.base_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
 
         if num_differences > 0:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         # where the images are
-        self.orig_label = Label(self.lower_bar, image=self.orig_tk, bg="black")
+        self.orig_label = tk.Label(self.lower_bar, image=self.orig_tk, bg="black")
         self.orig_label.grid(row=0, column=0, padx=20, pady=20)
 
-        self.changed_label = Label(self.lower_bar, image=self.changed_tk, bg="black")
+        self.changed_label = tk.Label(self.lower_bar, image=self.changed_tk, bg="black")
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
         # vertical scrollbar
         self.scroll = scroll
         if scroll:
-            self.scroll_bar = Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
+            self.scroll_bar = tk.Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
             self.canvas.configure(yscrollcommand=self.scroll_bar.set)
             self.scroll_bar.pack(side="right", fill="y")
 
@@ -388,7 +388,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll = False, human_colour = False, sensitivity: int = 20, smallest_img: int = 10):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll = False, human_colour = False, sensitivity: int = 20, smallest_img: int = 30):
         self.win = win
         self.win.title("Spot The Difference")
 
@@ -458,43 +458,43 @@ class AIWin:
         self.diff_tk = ImageTk.PhotoImage(self.diff_img)
         self.amp_tk = ImageTk.PhotoImage(self.amp_img)
 
-        self.canvas = Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0)
-        self.base_frame = Frame(self.canvas, bg="black")
+        self.canvas = tk.Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0)
+        self.base_frame = tk.Frame(self.canvas, bg="black")
         self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
         self.canvas.pack(side="left", fill="both", expand=True)
 
         # drawing the window
-        self.logo_label = Label(self.base_frame, image=logo_tk, bg="black")
+        self.logo_label = tk.Label(self.base_frame, image=logo_tk, bg="black")
         self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
-        self.bar = Frame(self.base_frame, bg="black")
+        self.bar = tk.Frame(self.base_frame, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
 
-        self.orig_label = Label(self.bar, image=self.orig_tk, bg="black")
+        self.orig_label = tk.Label(self.bar, image=self.orig_tk, bg="black")
         self.orig_label.grid(row=0, column=0, padx=20, pady=20)
 
 
-        self.changed_label = Label(self.bar, image=self.changed_tk, bg="black")
+        self.changed_label = tk.Label(self.bar, image=self.changed_tk, bg="black")
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
-        self.diff_label = Label(self.bar, image=self.diff_tk, bg="white")
+        self.diff_label = tk.Label(self.bar, image=self.diff_tk, bg="white")
         self.diff_label.grid(row=1, column=0, padx=20, pady=20)
 
-        self.amp_label = Label(self.bar, image=self.amp_tk, bg="white")
+        self.amp_label = tk.Label(self.bar, image=self.amp_tk, bg="white")
         self.amp_label.grid(row=1, column=1, padx=20, pady=20)
 
-        self.ai_msg = Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
+        self.ai_msg = tk.Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
-        self.score_label = Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
+        self.score_label = tk.Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
         self.score_label.grid(row=2, column=1)
         
         self.scroll = scroll
         if scroll:
-            self.scroll_bar = Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
+            self.scroll_bar = tk.Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
             self.canvas.configure(yscrollcommand=self.scroll_bar.set)
             self.scroll_bar.pack(side="right", fill="y")
 
@@ -689,7 +689,7 @@ def run(win):
     user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
     user_win.run()
     score = user_win.score
-    ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions, scroll=True, smallest_img=30) # smallest_img > 10 is better on one of the images where the algorithm now selects the whole lamp
+    ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions, scroll=True)
     ai_win.run()
     sel_img.orig_img.close()
     sel_img.diff_img.close()
