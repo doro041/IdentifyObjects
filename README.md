@@ -12,3 +12,5 @@ For each object within the "solutions" array, certain key attributes are expecte
     "bottom_right": Similar to "top_left," this is an object with "w" and "h" fields, specifying the coordinates of the bottom-right corner of the difference. It's important to note that the defined rectangle should encompass the edge pixels of the observed difference.
 
     "score": This field holds the score assigned for detecting the respective difference. It's crucial to ensure that this score does not exceed or equal 1,000,000,000, considering that multiple differences within a selected area are evaluated in terms of their scores.
+
+    "alt": This is an object containing fields "top_left" and "bottom_right". This object defines a second box for the difference which can be selected instead.
