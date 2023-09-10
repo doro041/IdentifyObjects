@@ -20,9 +20,11 @@ def release_win(win: tk.Tk):
     win.quit()
     for widget in win.winfo_children():
         widget.destroy()
-
+# https://stackoverflow.com/questions/71917396/error-tkinter-tclerror-cant-invoke-wm-command-application-has-been-destroy for not good solution of wrapping in try except 
+# 
 # basic close window callback for nothing to happen on window closing -> override if want something special
 def close_win():
     global win
+    global running
     win.destroy()
     exit(0)
