@@ -45,11 +45,10 @@ class LeaderboardEntry:
         return f'{self.name} {self.time.strftime("%H:%M:%S")}'
 
 
-class LeaderboardDisplay(tk.Toplevel):
+class LeaderboardDisplay:
     """This class represents the leaderboard display. It will display the top 10 entries in the leaderboard."""
 
     def __init__(self, master = None, backWindow=None):
-        super().__init__(master = master)
         window = tk.Tk()
         self.backWindow = backWindow
         """ WIDTH = 2560
@@ -77,16 +76,15 @@ class LeaderboardDisplay(tk.Toplevel):
         #Leaderboard entries section.
 
         entries = ttk.Treeview(window, columns=(['Name', 'Time', 'Ranking']), show='headings')
-        entries.heading('#1', text='Name', style='Treeview.Heading')
-        entries.heading('#2', text='Time', style='Treeview.Heading')
-        entries.heading('#3', text='Ranking', style='Treeview.Heading')
+        entries.heading('#1', text='Name')
+        entries.heading('#2', text='Time')
+        entries.heading('#3', text='Ranking')
     
 
         s = ttk.Style()
         s.configure('TLabelFrame', background='white')
         s.configure('TButton', background='white')
         s.configure('Treeview', font=('Helvetica', 15))
-        s.configure('Treeview.Heading', font=('Helvetica', 15, 'bold'))
 
 
         # Test if ranking works with the list. It should be sorted by time.
