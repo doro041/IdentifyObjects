@@ -6,6 +6,8 @@ from operator import itemgetter
 import json
 import random
 
+import common
+
 """
 Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - Fraser
   https://www.geeksforgeeks.org/loading-images-in-tkinter-using-pil/ for using Pillow with Tkinter
@@ -25,6 +27,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://stackoverflow.com/questions/4310489/how-do-i-remove-the-light-grey-border-around-my-canvas-widget for removing the canvas border
   https://obsessive-coffee-disorder.com/rgb-to-grayscale-using-cimg/ for explaining human colour perception
   https://coderslegacy.com/python/change-tkinter-window-icon/ for using iconphoto and that iconbitmap only supports png image files on certain platforms
+  https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding for unbind
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
   Please don't comment on how I have basically treated squares and rectangles as the same shape
@@ -39,19 +42,6 @@ BlueMul = 0.114
 RedInvMul = 0.242
 GreenInvMul = 0.123
 BlueInvMul = 0.635
-
-# setup window
-win = tk.Tk()
-win["bg"] = "black"
-
-# allow logo to be accessible for use for both windows without multiple loads
-logo = Image.open("images/AILOGO.png")
-logo_tk = ImageTk.PhotoImage(logo)
-
-win.iconphoto(False, logo_tk)
-
-next_img = Image.open("images/NextButton.png")
-next_tk = ImageTk.PhotoImage(next_img)
 
 # keep reading from file until have all data
 def read_all(file):
@@ -189,7 +179,7 @@ class UserWin:
 
         # displaying things on the screen
 
-        self.logo_label = tk.Label(self.base_frame, image=logo_tk, bg="black")
+        self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
         self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
         self.time_label = tk.Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
@@ -201,7 +191,7 @@ class UserWin:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = tk.Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         # where the images are
@@ -371,10 +361,9 @@ class UserWin:
             self.end_game()
         else:
             self.clear_up()
-            self.win.quit()
-            self.canvas.destroy()
-            if self.scroll:
-                self.scroll_bar.destroy()
+            common.release_win(self.win)
+            self.win.unbind("<Key>")
+            self.win.bind("WM_CLOSE_WINDOW", common.close_win)
 
     # run main window
     def run(self):
@@ -460,7 +449,7 @@ class AIWin:
         self.canvas.pack(side="left", fill="both", expand=True)
 
         # drawing the window
-        self.logo_label = tk.Label(self.base_frame, image=logo_tk, bg="black")
+        self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
         self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
 
         self.bar = tk.Frame(self.base_frame, bg="black")
@@ -482,7 +471,7 @@ class AIWin:
         self.ai_msg = tk.Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = tk.Button(self.base_frame, image=next_tk, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
         self.next_button.grid(row=0, column=2, sticky="e")
 
         self.score_label = tk.Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
@@ -606,10 +595,10 @@ class AIWin:
     # for going onto what's after this window
     def next_clicked(self):
         self.clear_up()
-        self.win.quit()
-        self.canvas.destroy()
-        if self.scroll:
-            self.scroll_bar.destroy()
+        common.release_win(self.win)
+        # no more key events for window
+        self.win.unbind("<Key>")
+        self.win.bind("WM_CLOSE_WINDOW", common.close_win)
 
     # we don't have much to do in run
     def run(self):
@@ -680,9 +669,3 @@ def run(win):
     sel_img.orig_img.close()
     sel_img.diff_img.close()
     return (user_win.score, user_win.time)
-
-print(run(win))
-
-win.destroy()
-logo.close()
-next_img.close()
