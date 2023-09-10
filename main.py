@@ -9,6 +9,7 @@ common.win = tk.Tk()
 win = common.win
 win.title("Spot The Difference")
 win["bg"] = "black"
+win.attributes('-fullscreen', True)
 
 win.protocol("WM_DELETE_WINDOW", common.close_win)
 

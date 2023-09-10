@@ -27,7 +27,6 @@ def run(root):
     global name_entry
     global email_entry
     win = root
-    root.attributes('-fullscreen', True)
 
     canvas = tk.Canvas(root, bg="black")
     canvas.pack(fill=tk.BOTH, expand=True)
