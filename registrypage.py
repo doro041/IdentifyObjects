@@ -28,7 +28,7 @@ def run(root):
     global email_entry
     win = root
 
-    canvas = tk.Canvas(root, bg="black")
+    canvas = tk.Canvas(root, bg="black", borderwidth=0, highlightthickness=0)
     canvas.pack(fill=tk.BOTH, expand=True)
 
 
