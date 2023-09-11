@@ -4,6 +4,7 @@ from tkinter.ttk import Label
 from PIL import ImageTk, Image
 from subprocess import call
 
+
 import common
 
 import tkinter as tk

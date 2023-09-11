@@ -50,5 +50,24 @@ def record_game_score(user_id, score):
     conn.commit()
     conn.close()
 
-# Create the necessary tables if they don't exist
+def get_leaderboard_entries():
+    conn = sqlite3.connect("game_identify.db")
+    cursor = conn.cursor()
+
+    # Fetch the top 10 leaderboard entries ordered by time taken (assuming you have a 'game_scores' table)
+    cursor.execute('''SELECT u.username, gs.score, gs.timestamp
+                      FROM users AS u
+                      INNER JOIN game_scores AS gs ON u.id = gs.user_id
+                      ORDER BY gs.score DESC, gs.timestamp ASC
+                      LIMIT 10''')
+
+    leaderboard_data = cursor.fetchall()
+    
+    conn.close()
+    return leaderboard_data
+
+
+
+
 create_tables()
+
