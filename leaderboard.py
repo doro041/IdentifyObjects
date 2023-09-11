@@ -32,7 +32,7 @@ class LeaderboardDisplay:
 
         s = ttk.Style()
         s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
-        s.map('TButton', foreground=[('active', 'white')], background=[('active', 'black')])
+        s.map('TButton', foreground=[('active', 'white'), ('focus', 'white')], background=[('active', 'black'), ('focus', 'black')])
 
         # Fetch the leaderboard data
         leaderboard_data = self.fetch_leaderboard()
