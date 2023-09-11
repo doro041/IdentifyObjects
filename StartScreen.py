@@ -21,7 +21,7 @@ def run(root):
     win = root
     text=Text(root)
     #Sets the main text onto the window, any alterations that need to be made to the main has to happen here
-    label = tk.Label(root, text="Ready to Win Big? Join the AI Societys Spot-the-Difference Challenge! \n\n 1. Sign Up- Enter your name and email- no passwords needed \n\n 2. Start the Game! - Click the 'Start' button to view 2 images side by side and find the differences \n\n 3. Beat the Timer- Finish the puzzles as quick as possible to get on the leaderboard! \n\n We hope you enjoy the game, and Good Luck!",
+    label = tk.Label(root, text="Ready to Win Big? Join the AI Societys Spot-the-Difference Challenge! \n\n 1. Sign Up- Enter your name and email- no passwords needed \n\n 2. Start the Game! - Click the 'Start' button to view 2 images side by side and find the differences \n\n Selection\n\nPress to start drawing rectangle\nThen press to release\nIf you don't like what you've drawn, press the 'u' key or the escape key\n\n\n 3. Beat the Timer- Finish the puzzles as quick as possible to get on the leaderboard! \n\n We hope you enjoy the game, and Good Luck!",
                  bg='black',fg="white", font=("Arial",30), justify='center') # You can use use color names instead of color codes.
     #Sets the properties for the button, any changes to the button that need to be made need to be made here, will make the button look better and larger with more readable text
     click_here = tk.Button(root, image=common.start_img,
