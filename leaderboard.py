@@ -21,7 +21,7 @@ class LeaderboardDisplay:
         taskBar.pack()
 
         # Back button section.
-        backButton = ttk.Button(self.window, text="Back", command=self.back)
+        backButton = ttk.Button(self.window, image=common.back_img, command=self.back)
         backButton.pack(side="bottom", pady=10)
 
         # Create the Treeview widget and set it as an instance variable
@@ -29,6 +29,10 @@ class LeaderboardDisplay:
         self.entries.heading('#1', text='Name')
         self.entries.heading('#2', text='Score')
         self.entries.heading('#3', text='Timestamp')
+
+        s = ttk.Style()
+        s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
+        s.map('TButton', foreground=[('active', 'white')], background=[('active', 'black')])
 
         # Fetch the leaderboard data
         leaderboard_data = self.fetch_leaderboard()
