@@ -68,7 +68,7 @@ class LeaderboardDisplay:
         taskBar.pack()
         # Back button section. 
 
-        backButton = ttk.Button(self.window, text="< Back",
+        backButton = ttk.Button(self.window, image=common.back_img,
                                 width=10, style='back.TButton', command=self.back)
         backButton.pack(side="bottom", pady=10)
         #Leaderboard entries section.
@@ -80,7 +80,7 @@ class LeaderboardDisplay:
 
         s = ttk.Style()
         s.configure('TLabelFrame', foreground='white', background='black')
-        s.configure('TButton', foreground='white', background='black')
+        s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
         s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black')
         s.configure('TLabelFrame', foreground='white', background='black')
 

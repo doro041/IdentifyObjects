@@ -8,15 +8,19 @@ next_img = None
 win = None
 # start button image
 start_img = None
+# back button image
+back_img = None
 
 # load the images
 def init():
     global logo
     global next_img
     global start_img
+    global back_img
     logo = tk.PhotoImage(file="images/AILOGO.png")
     next_img = tk.PhotoImage(file="images/NextButton.png")
     start_img = tk.PhotoImage(file="images/StartButton.png")
+    back_img = tk.PhotoImage(file="images/BackButton.png")
 
 # https://stackoverflow.com/questions/15995783/how-to-delete-all-children-elements for destroying all of a window's widgets
 # releases the window from a section
