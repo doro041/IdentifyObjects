@@ -30,6 +30,7 @@ Sources I (Fraser) have used (other than documentation)  I don't know Tkinter - 
   https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding for unbind
 
   I would like to write my formal complaint against the sun which tried to blind me as I was writing my code
+  I am also writing a formal complaint against Apple who decided they would choose there own screen resolution instead of the 1920x1080 found on most displays and then made there screen resolution of 2560 x 1600 sound like you had 2560 by 1600 pixels to draw on (when it has just been scaled and is more like 1280 x 800 pixels)
   Please don't comment on how I have basically treated squares and rectangles as the same shape
   I hope my commit with no changes isn't noticed
 """
@@ -139,12 +140,12 @@ def do_score(selections, solutions, time, leniance = 5):
     return score
 # solutions should be in the format [top_left_pixel, bottom_right_pixel, score] where score is the points for finding that difference
 
-# Window options: scroll -> add scrolling support, human_vision -> add biases to colours based on human perception
+# Window options: scroll -> add scrolling support, human_vision -> add biases to colours based on human perception, horiz -> allow aligning images horizontally
 # Not using human_vision, sensitivity of 20 is good. I advise using 110 if you are using it though.
 
 # User Window for player's attempt
 class UserWin:
-    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll: bool = False):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, horiz: bool = False, scroll: bool = False):
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = win
         self.win.title("Spot The Difference")
@@ -200,8 +201,13 @@ class UserWin:
         self.orig_label = tk.Label(self.lower_bar, image=self.orig_tk, bg="black")
         self.orig_label.grid(row=0, column=0, padx=20, pady=20)
 
+        changed_col = 0
+        changed_row = 1
+        if horiz:
+            changed_col = 1
+            changed_row = 0
         self.changed_label = tk.Label(self.lower_bar, image=self.changed_tk, bg="black")
-        self.changed_label.grid(row=0, column=1, padx=20, pady=20)
+        self.changed_label.grid(row=changed_row, column=changed_col, padx=20, pady=20)
 
         self.image_frame.pack(anchor="center", pady=max(60 + common.next_img.height(), 20 + common.logo.height()))
         # vertical scrollbar
@@ -376,7 +382,7 @@ class UserWin:
 
 # AI window for how our algorithm accomplishes it
 class AIWin:
-    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, scroll = False, human_colour = False, sensitivity: int = 20, smallest_img: int = 30):
+    def __init__(self, win, orig_img: Image, changed_img: Image, num_differences: int, solutions, horiz: bool = False, scroll: bool = False, human_colour: bool = False, sensitivity: int = 20, smallest_img: int = 30):
         self.win = win
         self.win.title("Spot The Difference")
 
@@ -471,6 +477,17 @@ class AIWin:
 
         self.amp_label = tk.Label(self.bar, image=self.amp_tk, bg="white")
         self.amp_label.grid(row=1, column=1, padx=20, pady=20)
+
+        if horiz:
+            self.orig_label.grid(row=0, column=0, padx=20, pady=20)
+            self.changed_label.grid(row=0, column=1, padx=20, pady=20)
+            self.diff_label.grid(row=1, column=0, padx=20, pady=20)
+            self.amp_label.grid(row=1, column=1, padx=20, pady=20)
+        else:
+            self.orig_label.grid(row=0, column=0, padx=20, pady=20)
+            self.changed_label.grid(row=1, column=0, padx=20, pady=20)
+            self.diff_label.grid(row=2, column=0, padx=20, pady=20)
+            self.amp_label.grid(row=3, column=0, padx=20, pady=20)
 
         self.ai_msg = tk.Label(self.image_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
@@ -668,7 +685,7 @@ def run(win):
     sel_img.diff_img = Image.open(sel_img.diff_name).convert("RGBA")
 
     # run main program
-    user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions)
+    user_win = UserWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions, scroll=True)
     user_win.run()
     score = user_win.score
     ai_win = AIWin(win, sel_img.orig_img, sel_img.diff_img, sel_img.differences, sel_img.solutions, scroll=True)
