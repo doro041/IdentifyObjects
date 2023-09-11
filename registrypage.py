@@ -6,6 +6,8 @@ import DB
 win = None
 name_entry = None
 email_entry = None
+error_label = None
+user_id = None
 
 # Function to handle the click event in the Name Entry
 def name_entry_click(event):
@@ -28,24 +30,33 @@ def email_entry_focus_out(event):
         email_entry.insert(0, "Email")  # Restore the placeholder tex
 
 def register_user():
+    global user_id
     # Get the user-entered data
     name = name_entry.get()
     email = email_entry.get()
-
-    # Check if the user already exists
-    user_id = DB.register_user(name, email)
-    
-    if user_id is not None:
-        print(f"Registered User:\nName: {name}\nEmail: {email}\nUser ID: {user_id}")
+    if name == "" or email == "":
+        print("Name or email is empty")
+        error_label["text"] = "Empty name or email"
+    elif name == "Name" or email == "Email":
+        print("Name and email haven't been entered")
+        error_label["text"] = "Name and email haven't been entered"
     else:
-        print("User already exists with the same username or email.")
+        # Check if the user already exists
+        user_id = DB.register_user(name, email)
     
-    common.release_win(win)
+        if user_id is not None:
+            print(f"Registered User:\nName: {name}\nEmail: {email}\nUser ID: {user_id}")
+            common.release_win(win)
+        else:
+            print("User already exists with the same email.")
+            error_label["text"] = "User already exists with the same email"
+    
 
 def run(root):
     global win
     global name_entry
     global email_entry
+    global error_label
     win = root
 
     canvas = tk.Canvas(root, bg="black", borderwidth=0, highlightthickness=0)
@@ -75,6 +86,10 @@ def run(root):
     email_entry.bind("<FocusIn>", email_entry_click)  # Bind click event
     email_entry.bind("<FocusOut>", email_entry_focus_out)  # Bind focus out event
 
+    # init error label so errors can be displayed if necessary
+    error_label = tk.Label(frame, bg="black", fg="red")
+    error_label.pack(anchor="center", ipadx=10, ipady=15, padx=10, pady=30)
+
     # Create a "Register" button as an image
 
     # Create a "Register" button as an image
@@ -87,4 +102,5 @@ def run(root):
     style.configure("Custom.TEntry", borderwidth=1, relief="solid", background="#D9D9D9")
 
     root.mainloop()
+    return user_id
 

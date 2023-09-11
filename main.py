@@ -5,6 +5,7 @@ import StartScreen
 import registrypage
 import identifyobj
 import leaderboard
+import DB
 
 common.win = tk.Tk()
 win = common.win
@@ -21,8 +22,9 @@ win.iconphoto(False, common.logo)
 
 while True:
     StartScreen.run(win)
-    name = registrypage.run(win)
+    user_id = registrypage.run(win)
     score, time = identifyobj.run(win)
+    DB.record_game_score(user_id, score, time)
     leaderboard.run(win)
 
 win.destroy()
