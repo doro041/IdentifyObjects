@@ -41,6 +41,5 @@ def run(root):
     imgLabel.place(anchor= "nw")
     root.title('Spot the difference')
     #Will edit the inital size of the root window as my screen doesnt work well for testing at the specified 2560 × 1600
-    root.geometry('2560x1600')
     root.configure(bg='black')
     root.mainloop()

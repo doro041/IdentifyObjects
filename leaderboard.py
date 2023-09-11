@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import time
 
+import common
 
 class LeaderboardEntry:
     """This class represents an entry in the leaderboard. It consists of a name, time, and email, and multiple objects can be sorted by time."""
@@ -48,16 +49,13 @@ class LeaderboardEntry:
 class LeaderboardDisplay:
     """This class represents the leaderboard display. It will display the top 10 entries in the leaderboard."""
 
-    def __init__(self, master = None, backWindow=None):
-        window = tk.Tk()
-        self.backWindow = backWindow
+    def __init__(self, master):
+        self.window = master
         """ WIDTH = 2560
         HEIGHT = 1600 """
         WIDTH = 800
         HEIGHT = 600
-        window.geometry(f"{WIDTH}x{HEIGHT}")
-        window.title("Leaderboard")
-        window.maxsize(WIDTH, HEIGHT)
+        self.window.title("Leaderboard")
 
         # Styling for the new ttk components.
 
@@ -65,26 +63,26 @@ class LeaderboardDisplay:
 
 
         #Task bar section. 
-        taskBar = ttk.LabelFrame(window, width=WIDTH,
+        taskBar = ttk.LabelFrame(self.window, width=WIDTH,
                             height=HEIGHT * (10/100))
         taskBar.pack()
         # Back button section. 
 
-        backButton = ttk.Button(window, text="< Back",
+        backButton = ttk.Button(self.window, text="< Back",
                                 width=10, style='back.TButton', command=self.back)
         backButton.pack(side="bottom", pady=10)
         #Leaderboard entries section.
 
-        entries = ttk.Treeview(window, columns=(['Name', 'Time', 'Ranking']), show='headings')
+        entries = ttk.Treeview(self.window, columns=(['Name', 'Time', 'Ranking']), show='headings')
         entries.heading('#1', text='Name')
         entries.heading('#2', text='Time')
         entries.heading('#3', text='Ranking')
-    
 
         s = ttk.Style()
-        s.configure('TLabelFrame', background='white')
-        s.configure('TButton', background='white')
-        s.configure('Treeview', font=('Helvetica', 15))
+        s.configure('TLabelFrame', foreground='white', background='black')
+        s.configure('TButton', foreground='white', background='black')
+        s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black')
+        s.configure('TLabelFrame', foreground='white', background='black')
 
 
         # Test if ranking works with the list. It should be sorted by time.
@@ -106,18 +104,16 @@ class LeaderboardDisplay:
             entries.insert(parent='', index='end', iid=i, values=(currentEntry.name, currentEntry.time.strftime("%H:%M:%S"), i+1))
 
         entries.pack(expand=True, fill="y")
-        window.mainloop()
+        self.window.mainloop()
 
     def back(self):
         """A function that returns to the previous window."""
-        if self.backWindow != None:
-            pass
-        exit()
+        common.release_win(self.window)
 
 # TODO: Figure out how the styles might work with the new ttk components. 
 
 # TODO: Make the back button have functionality by switching windows. 
 
 
-if __name__ == "__main__":
-    l = LeaderboardDisplay()
+def run(win):
+    l = LeaderboardDisplay(win)
