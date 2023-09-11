@@ -83,6 +83,7 @@ class LeaderboardDisplay:
         s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
         s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black')
         s.configure('TLabelFrame', foreground='white', background='black')
+        s.map('TButton', foreground=[('active', 'white')], background=[('active', 'black')])
 
 
         # Test if ranking works with the list. It should be sorted by time.
