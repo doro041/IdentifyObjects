@@ -193,7 +193,7 @@ class UserWin:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
-        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, bg="black", fg="white", activebackground="black", activeforeground="white", command=self.next_clicked)
         self.next_button.pack(anchor="ne", padx=10, pady=30, side="right")
 
         # where the images are
@@ -475,7 +475,7 @@ class AIWin:
         self.ai_msg = tk.Label(self.image_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
-        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
+        self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, fg="white", bg="black", activebackground="black", activeforeground="white", command=self.next_clicked)
         self.next_button.pack(padx=10, pady=30, anchor="ne", side="right")
 
         self.score_label = tk.Label(self.image_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")

@@ -25,7 +25,7 @@ def run(root):
                  bg='black',fg="white", font=("Arial",30), justify='center') # You can use use color names instead of color codes.
     #Sets the properties for the button, any changes to the button that need to be made need to be made here, will make the button look better and larger with more readable text
     click_here = tk.Button(root, image=common.start_img,
-                       bg='black',fg="white", padx = 10, pady = 5, borderwidth=0, highlightthickness=0, command=create_window)
+                       bg='black',fg="white", activebackground="black", activeforeground="white", padx = 10, pady = 5, borderwidth=0, highlightthickness=0, command=create_window)
 
 
     #Centers the main text

@@ -57,7 +57,7 @@ def run(root):
 
     # Create a "Register" button as an image 
     register_image = common.next_img
-    register_button = tk.Button(frame, image=register_image, command=register_user, relief="flat", borderwidth=0, highlightthickness=0, fg="white", bg="black")
+    register_button = tk.Button(frame, image=register_image, command=register_user, relief="flat", borderwidth=0, highlightthickness=0, fg="white", bg="black", activebackground="black", activeforeground="white")
     register_button.image = register_image  
     register_button.pack(padx=10, pady=(5, 20))
 
