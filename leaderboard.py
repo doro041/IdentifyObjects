@@ -73,16 +73,16 @@ class LeaderboardDisplay:
         backButton.pack(side="bottom", pady=10)
         #Leaderboard entries section.
 
-        entries = ttk.Treeview(self.window, columns=(['Name', 'Time', 'Ranking']), show='headings')
+        entries = ttk.Treeview(self.window, columns=(['Name', 'Time', 'Ranking']), show='headings', selectmode='none')
         entries.heading('#1', text='Name')
         entries.heading('#2', text='Time')
         entries.heading('#3', text='Ranking')
 
         s = ttk.Style()
-        s.configure('TLabelFrame', foreground='white', background='black')
+        s.configure('TLabelFrame', background='black')
         s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
-        s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black')
-        s.configure('TLabelFrame', foreground='white', background='black')
+        # found out about fieldbackground from https://stackoverflow.com/questions/18044860/how-to-change-the-background-color-of-a-treeview
+        s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black', fieldbackground='black', borderwidth=0)
         s.map('TButton', foreground=[('active', 'white')], background=[('active', 'black')])
 
 
