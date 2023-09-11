@@ -34,16 +34,22 @@ def register_user():
     # Get the user-entered data
     name = name_entry.get()
     email = email_entry.get()
-
-    # Check if the user already exists
-    user_id = DB.register_user(name, email)
-    
-    if user_id is not None:
-        print(f"Registered User:\nName: {name}\nEmail: {email}\nUser ID: {user_id}")
-        common.release_win(win)
+    if name == "" or email == "":
+        print("Name or email is empty")
+        error_label["text"] = "Empty name or email"
+    elif name == "Name" or email == "Email":
+        print("Name and email haven't been entered")
+        error_label["text"] = "Name and email haven't been entered"
     else:
-        print("User already exists with the same email.")
-        error_label["text"] = "User already exists with the same email"
+        # Check if the user already exists
+        user_id = DB.register_user(name, email)
+    
+        if user_id is not None:
+            print(f"Registered User:\nName: {name}\nEmail: {email}\nUser ID: {user_id}")
+            common.release_win(win)
+        else:
+            print("User already exists with the same email.")
+            error_label["text"] = "User already exists with the same email"
     
 
 def run(root):
