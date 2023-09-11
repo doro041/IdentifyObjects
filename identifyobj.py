@@ -188,6 +188,10 @@ class UserWin:
         self.time_label = tk.Label(self.image_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
 
+        # success or failure label
+
+        self.success_label = tk.Label(self.image_frame, text=f"", font=("arial", 30), bg="black")
+
         self.diff_sol_label = tk.Label(self.image_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
 
         if num_differences > 0:
@@ -317,6 +321,15 @@ class UserWin:
         self.diff_sol_label["text"] = f"Score: {self.score}"
         self.diff_sol_label["fg"] = "yellow"
         self.diff_sol_label.grid(row=2, column=1)
+
+        # Found all the differences
+        if self.score >= len(self.solutions):
+            self.success_label["text"] = "Success!"
+            self.success_label["fg"] = "yellow"
+        else:
+            self.success_label["text"] = "Better luck next time!"
+            self.success_label["fg"] = "red"
+        self.success_label.grid(row=3, column=1)
         self.running = False
 
     # countdown timer
