@@ -41,7 +41,7 @@ def run(root):
     # Load and display the logo image with custom width and height
     logo_image = common.logo
     logo_label = tk.Label(frame, image=logo_image, bg="black")
-    logo_label.pack(anchor="nw", padx=5, pady=5)
+    logo_label.pack(anchor="nw", padx=10, pady=10)
 
     # Create and style the "Name" input field
     name_entry = ttk.Entry(frame, font=("Helvetica", 16), width=80)

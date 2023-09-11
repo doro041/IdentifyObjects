@@ -35,10 +35,10 @@ def run(root):
     #Below the code is displaying the logo
     img= common.logo
     #Places the image onto the main window
-    imgLabel=Label(root, image=img)
+    imgLabel=Label(root, image=img, background="black")
     imgLabel.pack()
     #Positions the logo to the top left hand side
-    imgLabel.place(anchor= "nw")
+    imgLabel.place(x=10, y=10, anchor= "nw")
     root.title('Spot the difference')
     #Will edit the inital size of the root window as my screen doesnt work well for testing at the specified 2560 × 1600
     root.configure(bg='black')

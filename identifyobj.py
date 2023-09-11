@@ -180,7 +180,7 @@ class UserWin:
         # displaying things on the screen
 
         self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+        self.logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
         self.time_label = tk.Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
@@ -450,7 +450,7 @@ class AIWin:
 
         # drawing the window
         self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+        self.logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
         self.bar = tk.Frame(self.base_frame, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
