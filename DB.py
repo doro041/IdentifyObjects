@@ -1,18 +1,18 @@
 import sqlite3
 
+# Function to create database tables if they don't exist
 def create_tables():
-    # Create or connect to the database file
     conn = sqlite3.connect("game_identify.db")
     cursor = conn.cursor()
 
-    # Users table
+    # Create the 'users' table if it doesn't exist
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                      id INTEGER PRIMARY KEY,
                      username TEXT UNIQUE NOT NULL,
                      email TEXT UNIQUE NOT NULL
                      )''')
 
-    # Dashboard table
+    # Create the 'game_scores' table if it doesn't exist
     cursor.execute('''CREATE TABLE IF NOT EXISTS game_scores (
                      id INTEGER PRIMARY KEY,
                      user_id INTEGER,
@@ -24,7 +24,7 @@ def create_tables():
     conn.commit()
     conn.close()
 
-
+# Function to register a new user
 def register_user(username, email):
     conn = sqlite3.connect("game_identify.db")
     cursor = conn.cursor()
@@ -41,6 +41,7 @@ def register_user(username, email):
         conn.close()
         return None
 
+# Function to record a game score for a user
 def record_game_score(user_id, score):
     conn = sqlite3.connect("game_identify.db")
     cursor = conn.cursor()
@@ -50,11 +51,12 @@ def record_game_score(user_id, score):
     conn.commit()
     conn.close()
 
+# Function to get the top 10 leaderboard entries
 def get_leaderboard_entries():
     conn = sqlite3.connect("game_identify.db")
     cursor = conn.cursor()
 
-    # Fetch the top 10 leaderboard entries ordered by time taken (assuming you have a 'game_scores' table)
+    # Fetch the top 10 leaderboard entries ordered by score (descending) and timestamp (ascending)
     cursor.execute('''SELECT u.username, gs.score, gs.timestamp
                       FROM users AS u
                       INNER JOIN game_scores AS gs ON u.id = gs.user_id
@@ -62,12 +64,8 @@ def get_leaderboard_entries():
                       LIMIT 10''')
 
     leaderboard_data = cursor.fetchall()
-    
+
     conn.close()
+
     return leaderboard_data
-
-
-
-
-create_tables()
 
