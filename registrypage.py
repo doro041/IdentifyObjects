@@ -44,15 +44,25 @@ def run(root):
     logo_label.pack(anchor="nw", padx=10, pady=10)
 
     # Create and style the "Name" input field
-    name_entry = ttk.Entry(frame, font=("Helvetica", 16), width=80)
-    name_entry.insert(0, "Name")
-    name_entry.pack(anchor="center", ipadx=10, ipady=15, padx=10, pady=30) 
+    name_frame = tk.Frame(frame, bg="black")
+
+    name_label = tk.Label(name_frame, text="Name", fg="white", bg="black", font=("Helvetica", 16))
+    name_label.pack(side="left")
+
+    name_entry = ttk.Entry(name_frame, font=("Helvetica", 16), width=80)
+    name_entry.pack(side="right")
+    name_frame.pack(anchor="center", ipadx=10, ipady=15, padx=10, pady=30) 
     name_entry.config(style="Custom.TEntry")  # Apply custom styling
 
+    email_frame = tk.Frame(frame, bg="black")
+
+    email_label = tk.Label(email_frame, text="Email", fg="white", bg="black", font=("Helvetica", 16))
+    email_label.pack(side="left")
+
     # Create and style the "Email" input field
-    email_entry = ttk.Entry(frame, font=("Helvetica", 16), width=80)
-    email_entry.insert(0, "Email")
-    email_entry.pack(anchor="center", ipadx=10, ipady=15, padx=10, pady=30) 
+    email_entry = ttk.Entry(email_frame, font=("Helvetica", 16), width=80)
+    email_entry.pack(side="right")
+    email_frame.pack(anchor="center", ipadx=10, ipady=15, padx=10, pady=30) 
     email_entry.config(style="Custom.TEntry")  # Apply custom styling
 
     # Create a "Register" button as an image 
@@ -63,7 +73,7 @@ def run(root):
 
 
     style = ttk.Style()
-    style.configure("Custom.TEntry", borderwidth=1, relief="solid", background="#D9D9D9")
+    style.configure("Custom.TEntry", borderwidth=1, relief="solid", background="D9D9D9")
 
     root.mainloop()
     return name
