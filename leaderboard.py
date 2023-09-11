@@ -38,6 +38,7 @@ class LeaderboardDisplay:
             self.entries.insert(parent='', index='end', iid=rank, values=(username, score, timestamp))
 
         self.entries.pack(expand=True, fill="y")
+        master.mainloop()
 
       
 
