@@ -42,14 +42,18 @@ def register_user(username, email):
         return None
 
 # Function to record a game score for a user
-def record_game_score(user_id, score):
+def record_game_score(user_id, score, time_taken):
     conn = sqlite3.connect("game_identify.db")
     cursor = conn.cursor()
 
-    # Insert the game score into the 'game_scores' table
-    cursor.execute("INSERT INTO game_scores (user_id, score) VALUES (?, ?)", (user_id, score))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute("INSERT INTO game_scores (user_id, score, timestamp) VALUES (?, ?, ?)",
+                       (user_id, score, time_taken))
+        conn.commit()
+        conn.close()
+    except sqlite3.IntegrityError as e:
+        print(f"Error: {e}")
+        conn.close()
 
 # Function to get the top 10 leaderboard entries
 def get_leaderboard_entries():
@@ -68,4 +72,3 @@ def get_leaderboard_entries():
     conn.close()
 
     return leaderboard_data
-

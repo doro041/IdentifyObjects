@@ -16,29 +16,38 @@ class LeaderboardDisplay:
         WIDTH = 800
         HEIGHT = 600
         self.window.title("Leaderboard")
-
-       # Task bar section.
+    
         taskBar = ttk.LabelFrame(self.window, width=WIDTH, height=HEIGHT * (10/100))
         taskBar.pack()
 
         # Back button section.
-        backButton = ttk.Button(self.window, image=common.back_img, width=10, style='back.TButton', command=self.back)
+        backButton = ttk.Button(self.window, text="Back", command=self.back)
         backButton.pack(side="bottom", pady=10)
 
-        # Fetch leaderboard data from the database using the DB module
-        leaderboard_data = DB.get_leaderboard_entries()
-
         # Create the Treeview widget and set it as an instance variable
-        self.entries = ttk.Treeview(self.window, columns=(['Name', 'Time', 'Ranking']), show='headings')
+        self.entries = ttk.Treeview(self.window, columns=(['Name', 'Score', 'Timestamp']), show='headings')
         self.entries.heading('#1', text='Name')
-        self.entries.heading('#2', text='Time')
-        self.entries.heading('#3', text='Ranking')
+        self.entries.heading('#2', text='Score')
+        self.entries.heading('#3', text='Timestamp')
 
+        # Fetch the leaderboard data
+        leaderboard_data = self.fetch_leaderboard()
+
+        # Populate the Treeview with leaderboard data
         for rank, (username, score, timestamp) in enumerate(leaderboard_data, start=1):
             self.entries.insert(parent='', index='end', iid=rank, values=(username, score, timestamp))
 
         self.entries.pack(expand=True, fill="y")
-        self.window.mainloop()
+
+      
+
+    def fetch_leaderboard(self):
+        # Fetch leaderboard data using the get_leaderboard_entries function
+        leaderboard_data = DB.get_leaderboard_entries()
+        return leaderboard_data
+
+
+
 
     def back(self):
         """A function that returns to the previous window."""
