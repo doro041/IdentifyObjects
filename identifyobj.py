@@ -148,7 +148,6 @@ class UserWin:
         # creates Tkinter window, sets background and creates array of squares drawn and where the first click was
         self.win = win
         self.win.title("Spot The Difference")
-        self.win["bg"] = "black"
         self.squares = []
         self.start_click = None
 
@@ -171,28 +170,31 @@ class UserWin:
         self.num_differences = num_differences # how many differences to look for (0 or less will turn off differences display)
         self.canvas = tk.Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0) # use canvas as it supports scrolling
         self.base_frame = tk.Frame(self.canvas, bg="black") # have frame so can do neat grid layout
-        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
+        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw", width=self.win.winfo_width())
         self.canvas.pack(side="left", fill="both", expand=True) # make sure canvas takes up whole window
 
-        self.lower_bar = tk.Frame(self.base_frame, bg="black")
+        # have image frame for grid layout of images
+        self.image_frame = tk.Frame(self.base_frame, bg="black")
+
+        self.lower_bar = tk.Frame(self.image_frame, bg="black")
         self.lower_bar.grid(row=1, column=0, columnspan=3)
 
         # displaying things on the screen
 
         self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+        self.logo_label.pack(anchor="nw", padx=10, pady=10, side="left")
 
-        self.time_label = tk.Label(self.base_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
+        self.time_label = tk.Label(self.image_frame, text=f"{sec_to_time(self.time)}", font=("arial", 30), bg="black", fg="white")
         self.time_label.grid(row=0, column=1)
 
-        self.diff_sol_label = tk.Label(self.base_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
+        self.diff_sol_label = tk.Label(self.image_frame, text=f"", font=("arial", 30), bg="black", fg="magenta")
 
         if num_differences > 0:
             self.diff_sol_label["text"] = f"Differences: {num_differences}"
             self.diff_sol_label.grid(row=2, column=1)
 
         self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, bg="black", fg="white", command=self.next_clicked)
-        self.next_button.grid(row=0, column=2, sticky="e")
+        self.next_button.pack(anchor="ne", padx=10, pady=30, side="right")
 
         # where the images are
         self.orig_label = tk.Label(self.lower_bar, image=self.orig_tk, bg="black")
@@ -201,6 +203,7 @@ class UserWin:
         self.changed_label = tk.Label(self.lower_bar, image=self.changed_tk, bg="black")
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
+        self.image_frame.pack(anchor="center")
         # vertical scrollbar
         self.scroll = scroll
         if scroll:
@@ -213,7 +216,7 @@ class UserWin:
         self.orig_label.bind("<Motion>", self.img_move)
         self.changed_label.bind("<Button-1>", self.img_clicked)
         self.changed_label.bind("<Motion>", self.img_move)
-        self.base_frame.bind("<Configure>", self.config_base)
+        self.image_frame.bind("<Configure>", self.config_base)
         self.win.bind("<Key>", self.key_pressed)
         self.win.protocol("WM_DELETE_WINDOW", self.close_win)
 
@@ -445,14 +448,15 @@ class AIWin:
 
         self.canvas = tk.Canvas(self.win, bg="black", borderwidth=0, highlightthickness=0)
         self.base_frame = tk.Frame(self.canvas, bg="black")
-        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw")
+        self.image_frame = tk.Frame(self.base_frame, bg="black")
+        self.canvas.create_window((0, 0), window=self.base_frame, anchor="nw", width=self.win.winfo_width())
         self.canvas.pack(side="left", fill="both", expand=True)
 
         # drawing the window
         self.logo_label = tk.Label(self.base_frame, image=common.logo, bg="black")
-        self.logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+        self.logo_label.pack(padx=10, pady=10, anchor="nw", side="left")
 
-        self.bar = tk.Frame(self.base_frame, bg="black")
+        self.bar = tk.Frame(self.image_frame, bg="black")
         self.bar.grid(row=1, column=0, columnspan=3)
 
         self.orig_label = tk.Label(self.bar, image=self.orig_tk, bg="black")
@@ -468,20 +472,23 @@ class AIWin:
         self.amp_label = tk.Label(self.bar, image=self.amp_tk, bg="white")
         self.amp_label.grid(row=1, column=1, padx=20, pady=20)
 
-        self.ai_msg = tk.Label(self.base_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
+        self.ai_msg = tk.Label(self.image_frame, text="This is what our algorithm did", font=("arial", 30), fg="white", bg="black")
         self.ai_msg.grid(row=0, column=1)
 
         self.next_button = tk.Button(self.base_frame, image=common.next_img, borderwidth=0, highlightthickness=0, fg="white", bg="black", command=self.next_clicked)
-        self.next_button.grid(row=0, column=2, sticky="e")
+        self.next_button.pack(padx=10, pady=30, anchor="ne", side="right")
 
-        self.score_label = tk.Label(self.base_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
+        self.score_label = tk.Label(self.image_frame, text=f"Algorithm score: {self.score}", font=("arial", 30), fg="yellow", bg="black")
         self.score_label.grid(row=2, column=1)
+        
+        self.image_frame.pack(anchor="center")
         
         self.scroll = scroll
         if scroll:
             self.scroll_bar = tk.Scrollbar(self.win, orient="vertical", command=self.canvas.yview)
             self.canvas.configure(yscrollcommand=self.scroll_bar.set)
             self.scroll_bar.pack(side="right", fill="y")
+
 
 
         self.base_frame.bind("<Configure>", self.config_base)
