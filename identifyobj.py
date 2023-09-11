@@ -203,7 +203,7 @@ class UserWin:
         self.changed_label = tk.Label(self.lower_bar, image=self.changed_tk, bg="black")
         self.changed_label.grid(row=0, column=1, padx=20, pady=20)
 
-        self.image_frame.pack(anchor="center")
+        self.image_frame.pack(anchor="center", pady=max(60 + common.next_img.height(), 20 + common.logo.height()))
         # vertical scrollbar
         self.scroll = scroll
         if scroll:
