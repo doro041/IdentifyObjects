@@ -83,6 +83,8 @@ class LeaderboardDisplay:
         s.configure('TButton', foreground='white', background='black', borderwidth=0, highlightthickness=0)
         # found out about fieldbackground from https://stackoverflow.com/questions/18044860/how-to-change-the-background-color-of-a-treeview
         s.configure('Treeview', font=('Helvetica', 15), foreground='white', background='black', fieldbackground='black', borderwidth=0)
+        # found out about Treeview.Heading style from https://stackoverflow.com/questions/63239295/changing-background-color-of-ttk-treeview-heading
+        s.configure('Treeview.Heading', font=('Helvetica', 18), background='black', foreground='white', borderwidth=0)
         s.map('TButton', foreground=[('active', 'white')], background=[('active', 'black')])
 
 
